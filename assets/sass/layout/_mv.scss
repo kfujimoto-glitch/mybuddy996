@@ -1,0 +1,478 @@
+@use "sass:math";
+@use "../global" as *;
+
+// ==================================================
+// PCカンプ（index.js の MV_* と同じ値・JSは触らない）
+// ==================================================
+$mv-camp: 1440;
+$mv-slide: 877;
+$mv-slide-h: 594; // スライド高さ（aspect）
+$mv-space: 23;
+$mv-caption-left: 36; // &_caption の left と同じ
+$mv-n: math.div($mv-camp + $mv-space, $mv-slide + $mv-space); // slidesPerView
+// 実スライド幅 S = (親幅 - (n-1)*space) / n
+$mv-slide-width: calc((100% - #{($mv-n - 1) * $mv-space}px) / #{$mv-n});
+
+// ---------- コントロール共通（矢印・ページャー） ----------
+// 垂直中央を揃える: bottom = 中央ライン / transform: translate(-50%, 50%)
+// 矢印下端 31 + 矢印高さ 12/2 = 37（従来の矢印位置を維持）
+$mv-controls-center-y: 37;
+
+// ---------- ページャー調整（カンプpx / ここだけ変える） ----------
+//   横方向 → ratio(値, 877) … 親幅(=中央スライド幅 S) 基準の %
+//   数字   → pcFont … 日付・タイトルと同じ
+$mv-pager-inset-right: 40; // 中央スライド右端 → ページャー右端
+$mv-pager-dot: 6; // 非アクティブ丸（小さすぎると点に見える）
+$mv-pager-active: 25; // アクティブ丸
+$mv-pager-font: 12; // 数字
+$mv-pager-gap: 34; // 非アクティブ同士の間隔
+$mv-pager-gap-active: 23; // アクティブ円の両隣の間隔
+$mv-pager-border: 1.5; // アクティブ丸の線
+
+// ---------- SP 矢印・ページャー調整（カンプpx / ここだけ変える） ----------
+// 親ボックス幅 335（キャプションと同じ）
+// 矢印・ページャー丸: spVw(値) … 画面幅基準（flex 内でもサイズが縮まない）
+$mv-sp-nav-box: 335;
+$mv-sp-controls-pad-y: 20; // コントロール上下の余白
+$mv-sp-arrow-w: 30; // 矢印の幅
+$mv-sp-arrow-gap: 29; // 矢印同士の間隔
+$mv-sp-arrow-left: 9; // ナビ左端 → 左矢印
+$mv-sp-pager-dot: 4; // 非アクティブ丸（小さすぎると点に見える）
+$mv-sp-pager-active: 23; // アクティブ丸
+$mv-sp-pager-font: 11; // 数字
+$mv-sp-pager-gap: 30; // 非アクティブ同士の間隔
+$mv-sp-pager-gap-active: 20; // アクティブ円の両隣の間隔
+$mv-sp-pager-border: 1; // アクティブ丸の線
+$mv-sp-pager-inset-right: 16; // ページャー右端 → controls右端
+$mv-sp-controls-color: #2f2f31; // SPの矢印・ページャー色
+
+// セクション外枠：左右の見切れを切る
+.mv {
+  overflow: hidden;
+  width: 100%;
+  margin-top: spCalc(66);
+  @include mq(pc) {
+    // margin-top: pcVw(53);
+    // margin-top: 53px;
+    margin-top: min(pcCalc(53), 53px);
+  }
+
+  &_slider {
+    position: relative;
+    width: 100%;
+
+    &_item {
+      flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+
+      @include hover() {
+        .mv_slider_media img {
+          transform: scale(1.08);
+        }
+      }
+
+      @include mq(pc) {
+        border-radius: pcVw(20);
+      }
+
+    }
+
+    &_media {
+      overflow: hidden;
+
+      img {
+        display: block;
+        width: 100%;
+        max-width: none;
+        height: auto;
+        aspect-ratio: 877 / 594;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+      }
+    }
+
+    &_grad {
+      @include mq(pc) {
+        position: absolute;
+        width: 100%;
+        height: ratio(232, 594);
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.60) 0%, rgba(42, 42, 42, 0.60) 56.74%, rgba(255, 255, 255, 0.60) 100%);
+        mix-blend-mode: multiply;
+        bottom: 0;
+      }
+    }
+
+    &_caption {
+
+      width: spCalc(335);
+      margin: ratio(17, 335) auto ratio(29, 335);
+
+
+      @include mq(pc) {
+        // ==================================================
+        // キャプション配置（PC / スライド上に absolute）
+        // カンプ基準: スライド 877×594 / キャプション幅 801 / bottom 71
+        // 左右余白: (877 - 801) / 2 = 38
+        //
+        // 方法A: width + 中央寄せ
+        //   left: 50%;
+        //   bottom: ratio(71, 594);   // 71 / 594
+        //   width: ratio(801, 877);   // 801 / 877 ≒ 91.33%
+        //   transform: translateX(-50%);
+        //
+        // 方法B: left + right（width 不要）
+        //   left: ratio(38, 877);     // 38 / 877
+        //   right: ratio(38, 877);
+        //   bottom: ratio(71, 594);
+        // ==================================================
+        position: absolute;
+        width: ratio(801, $mv-slide);
+        left: ratio($mv-caption-left, $mv-slide);
+        bottom: ratio(71, 594);
+        margin: 0;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        max-width: none;
+        height: auto;
+        aspect-ratio: 877 / 594;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+      }
+    }
+
+    &_date {
+      display: block;
+      color: rgba(47, 47, 49, 0.60);
+      @include font_gotham_m();
+      font-size: spFont(11);
+      line-height: lh(28, 11);
+      margin-bottom: ratio(3, 335);
+
+      @include mq(pc) {
+        color: rgba(255, 255, 255, 0.70);
+        // font-size: min(pcFont(12), 12px);
+        font-size: pcFont(12);
+        line-height: lh(28, 12);
+        margin-bottom: min(ratio(3, 801), 3px);
+      }
+    }
+
+    &_title {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2; // SP: 2行まで、以降は…
+      line-clamp: 2;
+      overflow: hidden;
+      font-size: spFont(15);
+      @include font_dnp_b();
+      color: #2F2F31;
+      line-height: lh(28, 15);
+
+      @include mq(pc) {
+        -webkit-line-clamp: 1; // PC: 1行まで
+        line-clamp: 1;
+        // font-size: min(pcFont(18), 18px);
+        font-size: pcFont(18);
+        color: #fff;
+        line-height: lh(28, 18);
+      }
+    }
+
+
+    // ---------- SP: 矢印＋ページャーを横一列（垂直中央揃え） ----------
+    &_controls {
+      display: flex;
+      align-items: center; // 矢印とページャーの垂直中央を揃える
+      width: spCalc($mv-sp-nav-box);
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: spVw($mv-sp-controls-pad-y) 0;
+      border-top: 1px solid #d5d5d5;
+      border-bottom: 1px solid #d5d5d5;
+
+      @include mq(pc) {
+        // 子の absolute を .mv_slider 基準に戻す
+        display: contents;
+        width: auto;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+    }
+
+    // ---------- 矢印 ----------
+    // SP: controls 内の左寄せ。サイズは spVw（親が縮んでも実寸を維持）
+    // PC: 中央スライド幅の箱。子は ratio(カンプpx, 877)
+    &_nav {
+      display: flex;
+      align-items: center;
+      gap: spVw($mv-sp-arrow-gap);
+      box-sizing: border-box;
+      pointer-events: none;
+
+      @include mq(pc) {
+        position: absolute;
+        z-index: 10;
+        left: 50%;
+        bottom: ratio($mv-controls-center-y, $mv-slide-h);
+        width: $mv-slide-width;
+        gap: ratio(17, $mv-slide);
+        transform: translate(-50%, 50%);
+      }
+    }
+
+    &_prev,
+    &_next {
+      display: block;
+      flex-shrink: 0;
+      width: spVw($mv-sp-arrow-w); // 以前の ratio(30,335)×親335 と同じ実寸
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      line-height: 0;
+      pointer-events: auto;
+
+      @include mq(pc) {
+        width: ratio(30, $mv-slide);
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+        // 白SVG → SPは濃色（#2F2F31 ≒ brightness 0.185）
+        filter: brightness(0.185);
+
+        @include mq(pc) {
+          filter: none;
+        }
+      }
+    }
+
+    &_prev {
+      margin-left: spVw($mv-sp-arrow-left);
+
+      @include mq(pc) {
+        margin-left: ratio($mv-caption-left, $mv-slide);
+      }
+    }
+
+    // ---------- ページャー ----------
+    // SP: controls 内の右寄せ（margin-left: auto）→ 矢印と垂直中央が一致
+    // PC: 中央スライド幅の箱 + $mv-controls-center-y
+    &_pager {
+      display: flex;
+      align-items: center;
+      // アクティブ円の高さで固定 → 弾が伸縮しても行の高さが動かない
+      height: spVw($mv-sp-pager-active);
+      gap: spVw($mv-sp-pager-gap);
+      margin-left: auto; // 右寄せ
+      margin-right: spVw($mv-sp-pager-inset-right);
+      box-sizing: border-box;
+      pointer-events: none;
+
+      @include mq(pc) {
+        position: absolute;
+        z-index: 10;
+        left: 50%;
+        bottom: ratio($mv-controls-center-y, $mv-slide-h);
+        width: $mv-slide-width;
+        height: pcVw($mv-pager-active);
+        margin-left: 0;
+        margin-right: 0;
+        justify-content: flex-end;
+        gap: ratio($mv-pager-gap, $mv-slide);
+        transform: translate(-50%, 50%);
+      }
+    }
+  }
+}
+
+// Swiper デフォルト left:0 / width:100% / bottom:8px を打ち消し
+.mv_slider_pager.swiper-pagination-horizontal {
+  position: static; // SP: controls の flex 子として並べる
+  width: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none;
+
+  @include mq(pc) {
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    width: $mv-slide-width !important;
+    bottom: ratio($mv-controls-center-y, $mv-slide-h) !important;
+    transform: translate(-50%, 50%);
+  }
+}
+
+.mv_slider_pager .swiper-pagination-bullet {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  // SP: spVw（画面幅基準）/ PC: ratio(..., 877)（スライド幅基準）
+  width: spVw($mv-sp-pager-dot) !important;
+  aspect-ratio: 1 / 1;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 50%;
+  background: transparent !important; // 塗りは ::before が担当（サイズ変化と切り離す）
+  box-shadow: inset 0 0 0 0 rgba($mv-sp-controls-color, 0);
+  opacity: 1 !important;
+  cursor: pointer;
+  pointer-events: auto;
+  line-height: 0;
+  font-size: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  vertical-align: top;
+  transition: width 0.25s ease, margin 0.25s ease, box-shadow 0.25s ease;
+
+  @include mq(pc) {
+    width: ratio($mv-pager-dot, $mv-slide) !important;
+    box-shadow: inset 0 0 0 0 rgba(#fff, 0);
+  }
+
+  // 非アクティブの丸（サイズ固定なので拡大縮小しない）
+  // 数pxの円を等倍で描くとアンチエイリアスで角ばって見えるため、
+  // 2倍サイズで描いて scale(0.5) で縮小 → 見た目はカンプ値のまま真円になる
+  &::before {
+    content: "";
+    display: block;
+    width: spVw($mv-sp-pager-dot * 2);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: $mv-sp-controls-color;
+    transform: scale(0.5);
+    transition: opacity 0.25s ease;
+
+    @include mq(pc) {
+      width: pcVw($mv-pager-dot * 2);
+      background: #fff;
+    }
+  }
+
+  span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    margin: 0;
+    padding: 0;
+    color: $mv-sp-controls-color;
+    font-size: spFont($mv-sp-pager-font);
+    line-height: 1;
+    letter-spacing: 0;
+    text-align: center;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.15s ease;
+    @include font_gotham_m();
+
+    @include mq(pc) {
+      color: #fff;
+      font-size: pcFont($mv-pager-font);
+    }
+  }
+
+  // 進捗リング（アクティブ時のみ表示 / 時計回りで一周）
+  .mv_slider_pager_ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: 0;
+    transform: rotate(-90deg); // 起点を12時に
+    pointer-events: none;
+  }
+
+  .mv_slider_pager_ring_bar {
+    fill: none;
+    stroke: $mv-sp-controls-color;
+    stroke-width: math.div($mv-sp-pager-border, $mv-sp-pager-active) * 100;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+
+    @include mq(pc) {
+      stroke: #fff;
+      // 1.5 / 25 * 100 = 6
+      stroke-width: math.div($mv-pager-border, $mv-pager-active) * 100;
+    }
+  }
+
+  &-active {
+    width: spVw($mv-sp-pager-active) !important;
+    box-shadow: inset 0 0 0 spVw($mv-sp-pager-border) rgba($mv-sp-controls-color, 0.3);
+    // gap を打ち消し、両隣だけ狭く
+    margin-left: spVw($mv-sp-pager-gap-active - $mv-sp-pager-gap) !important;
+    margin-right: spVw($mv-sp-pager-gap-active - $mv-sp-pager-gap) !important;
+
+    @include mq(pc) {
+      width: ratio($mv-pager-active, $mv-slide) !important;
+      box-shadow: inset 0 0 0 pcVw($mv-pager-border) rgba(#fff, 0.3);
+      margin-left: ratio($mv-pager-gap-active - $mv-pager-gap, $mv-slide) !important;
+      margin-right: ratio($mv-pager-gap-active - $mv-pager-gap, $mv-slide) !important;
+    }
+
+    &::before {
+      opacity: 0;
+    }
+
+    span {
+      opacity: 1;
+    }
+
+    &:first-child {
+      margin-left: 0 !important;
+    }
+
+    .mv_slider_pager_ring {
+      opacity: 1;
+    }
+
+    .mv_slider_pager_ring_bar {
+      animation: mv-pager-ring var(--mv-pager-duration, 3000ms) linear forwards;
+    }
+  }
+
+  &:last-child {
+    @include mq(pc) {
+      margin-right: ratio($mv-pager-inset-right, $mv-slide) !important;
+    }
+  }
+}
+
+@keyframes mv-pager-ring {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+// アニメーションを抑制する設定では一周させず満線に
+@media (prefers-reduced-motion: reduce) {
+  .mv_slider_pager .swiper-pagination-bullet-active .mv_slider_pager_ring_bar {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

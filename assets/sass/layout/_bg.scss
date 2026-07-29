@@ -1,0 +1,81 @@
+@use "../global" as *;
+
+// html {
+//     scrollbar-gutter: stable;
+//     overflow-x: clip;
+//   }
+
+html {
+  // iOS Safari: アドレスバー変動に強い高さ基準
+  height: 100%;
+}
+
+body {
+  // min-height: 100%;
+  // min-height: 100vh;
+  position: relative; // .bg の配置基準（開発環境で透過が維持できた構成）
+  // 念の為記載
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+// ページ背景 noise（.bg）
+// position:absolute のまま維持すること — fixed にすると下バー透過が崩れる（実機確認）。
+// 上バー: .bg-chrome-top（このファイル）。下バー: _about.scss の SP（pin 縮み + visual/grad/body 端あけ）。
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("../../assets/img/bg/noise.jpg");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+.wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+// ============================================================
+// Safari 26 Liquid Glass — 上バー対策（SP のみ・実機確認済み）
+// ============================================================
+// 【なぜこの構成か】
+// Safari 26 は上端 4px 以内の fixed/sticky の background-color で上バー色を決める。
+// About 通過後は上端に sticky が無く、未設定だと黒フォールバックになる。
+// .bg 全体を position:fixed にすると上は直るが下バー透過が崩れる（実機で確認）。
+// 参考: Jリーグ / UNIQLO — 上端だけ fixed、background-color + noise でサンプリング。
+//
+// 【なぜこの数値か】
+// ・height: 52px … ステータスバー＋アドレスバー相当のガード帯（端末差の余裕）
+// ・top: 0 / width: 100% … サンプリング条件（上端 ≤4px・幅 ≥80%）を満たす
+// ・z-index: 0 … .wrapper(1) より下。コンテンツ・靴に被らない
+// ・#eaeaea … noise.jpg の平均色。黒フォールバック防止（header.is-compact と同系）
+// ・background-image … バー越しに noise 質感が見える（Liquid Glass 側）
+//
+// 【触らないこと】
+// ・下端に同様の帯を置かない
+//   （下バーは _about.scss SP: pin 5px 縮み + visual/grad/body の bottom:8px）
+// ・.bg を fixed にしない
+// ・PC の About 16:9 枠（_about.scss）は動画見え方用で、この上バー対策とは別件
+// ============================================================
+.bg-chrome-top {
+  display: none;
+  pointer-events: none;
+}
+
+@include mq(sp) {
+  .bg-chrome-top {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    height: 52px;
+    background-color: #eaeaea;
+    background-image: url("../../assets/img/bg/noise.jpg");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+  }
+}

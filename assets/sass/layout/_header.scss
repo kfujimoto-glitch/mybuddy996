@@ -1,0 +1,226 @@
+@use "../global" as *;
+
+.header {
+
+    width: spCalc(345);
+    margin: 0 auto;
+    padding: spCalc(19) 0;
+    @include mq(pc) {
+        width: 100%;
+        // padding: pcVw(40) pcVw(35) 0;
+        // padding: 40px 35px 0;
+        padding: min(pcCalc(40), 40px) min(pcCalc(35), 35px) 0;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        transition: padding 0.25s ease-out;
+
+        // スクロール固定時（Figma 406:981）
+        &.is-compact {
+            padding: min(pcCalc(40), 40px) min(pcCalc(35), 35px) min(pcCalc(40), 40px);
+            // sticky中に下のコンテンツが透けないよう背景
+            background-color: #eaeaea;
+            background-image: url("../../assets/img/bg/noise.jpg");
+            background-repeat: repeat;
+            background-size: 200px 200px;
+        }
+    }
+
+    &_wrap {
+        
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        
+    }
+
+    &_logo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;  
+        width: ratio(157, 345);        
+
+        @include mq(pc) {
+            // width: pcVw(230);
+            // width: 230px;
+            width: pcCalc(230);
+            max-width: 230px;                
+        }
+
+        &_nb {
+            width: ratio(47,157);   
+            @include mq(pc) {
+                // width: pcVw(71);
+                // width: 71px;
+                width: ratio(71, 230);
+                max-width: 71px;
+            }
+
+            img {
+                width: 100%;
+                height: auto; // アスペクト比維持（base.scssで既に効いている）
+                display: block; // 下の余白対策
+            }
+        }
+
+        &_hm {
+            width: ratio(87,157);   
+            @include mq(pc) {
+                // width: pcVw(132);
+                // width: 132px;
+                width: ratio(132, 230);
+                max-width: 132px;
+            }
+
+            img {
+                width: 100%;
+                height: auto; // アスペクト比維持（base.scssで既に効いている）
+                display: block; // 下の余白対策
+            }
+        }
+
+    }
+
+    &_mybuddy {
+        position: absolute;
+        z-index: 1000;
+        width: ratio(314, 345);
+        // top の % は親の「高さ」基準 → ratio(60, 345) だと意図どおりにならない
+        // 横幅345基準でずらすなら margin-top（%が親の幅基準）を使う
+        top: 0;
+        margin-top: ratio(60, 345);
+        left: 50%;
+        transform: translate(-50%, 0%);
+        @include mq(pc) {
+            // width: pcVw(495);
+            // width: 495px;
+            width: pcCalc(495);
+            max-width: 495px;
+            // top の % は高さ基準なので使わない。margin-top は親幅基準
+            top: 0;
+            margin-top: min(pcCalc(6), 6px);
+            left: 50%;
+            transform: translate(-50%, 0);
+            transform-origin: center top;
+            // c.houyhnhnm.jp の heading-logo と同様に幅を滑らかに縮める
+            transition: width 0.25s ease-out, max-width 0.25s ease-out, margin-top 0.25s ease-out, transform 0.25s ease-out, top 0.25s ease-out;
+        }
+
+        // 固定時：ヘッダー内に収まるサイズ（Figma ≈178）
+        .header.is-compact & {
+            @include mq(pc) {
+                width: min(pcCalc(178), 178px);
+                max-width: 178px;
+                top: 50%;
+                margin-top: 0;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+            // 登場アニメは foundation/_animations.scss
+        }
+    }
+
+    &_nav {
+        display: none;
+        @include mq(pc) {
+            display: block;
+            // width: pcVw(290);
+            // width: 290px;
+            width: pcCalc(290);
+            max-width: 290px;
+        }
+    }
+
+    &_nav_list {
+        @include mq(pc) {
+            display: flex;      
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+
+    &_nav_about {
+        @include mq(pc) {
+           // width: pcVw(49);
+           // width: 49px;
+           width: ratio(49, 290);
+           max-width: 49px;
+        }
+    }
+
+    &_nav_article {
+        @include mq(pc) {
+            // width: pcVw(87);
+            // width: 87px;
+            width: ratio(87, 290);
+            max-width: 87px;
+        }
+    }
+    &_nav_official {
+        @include mq(pc) {
+            // width: pcVw(92);
+            // width: 92px;
+            width: ratio(92, 290);
+            max-width: 92px;
+        }
+    }
+
+    &_nav_link {
+
+        img {
+            width: 100%;
+            height: auto; // アスペクト比維持（base.scssで既に効いている）
+            display: block; // 下の余白対策
+        }
+    }
+
+
+    // ---------- SPメニューボタン（Figma: 2本線 / 幅33・中心間≈11） ----------
+    &_menu_btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; // 線ブロックをボタン内で中央寄せ
+        align-self: center; // header_logo と垂直中央揃え
+        box-sizing: border-box;
+        width: ratio(33, 345);
+        // 上下微調整（負=上 / 正=下）※marginの%は親幅基準
+        margin-top: ratio(-6, 345);
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        // 空 span の文字ストラットで高さが崩れるのを防ぐ
+        font-size: 0;
+        line-height: 0;
+
+        @include mq(pc) {
+            display: none;
+        }
+
+        &_line {
+            display: block;
+            flex: 0 0 1.25px; // 潰さない（2本目が 1.5px にならない対策）
+            width: 100%;
+            height: 1.25px;
+            min-height: 1.25px;
+            background: #000;
+            border-radius: 0;
+            pointer-events: none;
+
+            // gapの%は高さ基準で壊れる → ボタン幅33基準の margin-top
+            & + & {
+                margin-top: ratio(9.5, 33); // 1.5px線の中心間 ≈ 11
+            }
+        }
+    }
+
+
+}

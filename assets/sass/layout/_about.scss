@@ -1,0 +1,408 @@
+@use "../global" as *;
+
+// ==================================================
+// About（スクロールで動画拡大 → テキスト表示）
+// 参考: https://www.cigr.co.jp/ruff-laugh/ の sectionMovie
+// JS が --p（0→1）を更新。ここだけ変えて調整できる
+// ==================================================
+$about-scroll-h: 220vh; // スクロール距離（大きいほどゆっくり拡大）
+$about-scale-start-sp: 0.82; // SP 開始時の動画スケール
+$about-scale-start-pc: 0.72; // PC 開始時の動画スケール
+$about-scale-end: 1; // 終了時の動画スケール
+$about-content-in: 0.45; // この進捗からコンテンツ表示開始
+$about-content-full: 0.85; // この進捗でコンテンツ表示完了
+
+.about {
+    // JS が入れる進捗（0〜1）
+    --p: 0;
+    --scale-start: #{$about-scale-start-sp};
+    position: relative;
+    height: $about-scroll-h;
+    // background: #000;
+    color: #fff;
+    margin-bottom: spVw(45);
+    @include mq(pc) {
+        --scale-start: #{$about-scale-start-pc};
+        margin-bottom: min(pcVw(90), 90px);
+    }
+
+    // ============================================================
+    // Safari 26 Liquid Glass — 下バー対策（SP のみ・実機確認済み）
+    // ============================================================
+    // 【なぜこの構成か】
+    // Safari 26 は下端 3px 以内の sticky/fixed の色で下バーを決める。
+    // About の sticky（黒動画）が端まで届くと下バーが黒くなる。
+    // pin を縮める／動画・グラデ・本文だけ端を空ける。上バーは _bg.scss の
+    // .bg-chrome-top。PC には Safari バー対策は不要（下記「PC 動画」参照）。
+    //
+    // 【なぜこの数値か（SP）】
+    // ・pin: top: 5px / height: calc(100dvh - 10px)
+    //   → 上下各 5px 空け。サンプリング圏（下端約 3px）より余裕を持たせた実機値。
+    //   → 100vh に戻すと下バー透過が崩れる（実機確認）。
+    // ・_visual / _grad: top・bottom: 8px
+    //   → pin の 5px に加え、中の黒だけさらに離す。
+    //   → top:8px … About 中に黒が上バー（4px 圏）へ乗るのを抑える。
+    //   → bottom:8px … ゆっくり抜けるとき下バーに黒が乗るのを抑える。
+    //   → 8px は理論上の 3px より余裕を持たせた実機調整値（厳密な計算式ではない）。
+    // ・_body: bottom: 8px … pin 下端の透明帯をテキストで覆わない。
+    // ・拡大: cover + scale（--scale-start → $about-scale-end=1）。Safari 対策とは別。
+    //
+    // 【触らないこと】
+    // ・.bg を fixed にしない（下バーが崩れる）
+    // ・下端に高 z-index の帯を置かない（靴アニメに被る）
+    // ============================================================
+    //
+    // 【PC 動画（Safari バーとは無関係）】
+    // about.mp4 は 1920×1080（16:9）。pin いっぱい cover だと上下が切れるため、
+    // _visual だけ pin 内最大 16:9 にして開始時は全体表示。
+    // スクロールで --scale-end まで拡大し横幅いっぱいにする。
+    // pin は top:0 / 100vh のまま（SP の端あけは付けない）。
+    // ============================================================
+    &_pin {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+
+        @include mq(pc) {
+            // PC の 16:9 枠サイズ計算用（100cqw / 100cqh）※Safari 対策ではない
+            container-type: size;
+        }
+
+        @include mq(sp) {
+            // Safari 下バー: 上下各 5px（上ブロックコメント参照）
+            top: 5px;
+            height: calc(100dvh - 10px);
+        }
+    }
+
+    // 動画レイヤー
+    &_visual {
+        position: absolute;
+        inset: 0;
+        // SP: --p に合わせて scale（開始 → 1）
+        transform: scale(
+            calc(var(--scale-start) + (#{$about-scale-end} - var(--scale-start)) * var(--p))
+        );
+        transform-origin: center center;
+        will-change: transform;
+
+        @include mq(sp) {
+            // Safari: 黒動画を上下端から離す（上ブロックコメント参照）
+            top: 8px;
+            right: 0;
+            bottom: 8px;
+            left: 0;
+        }
+
+        // PC: 16:9 全体表示 → スクロールで横幅いっぱい（Safari バー対策ではない）
+        @include mq(pc) {
+            inset: auto;
+            top: 50%;
+            left: 50%;
+            width: min(100cqw, calc(100cqh * 16 / 9));
+            height: min(100cqh, calc(100cqw * 9 / 16));
+            --scale-end: calc(100cqw / min(100cqw, calc(100cqh * 16 / 9)));
+            transform: translate(-50%, -50%) scale(
+                calc(var(--scale-start) + (var(--scale-end) - var(--scale-start)) * var(--p))
+            );
+        }
+    }
+
+    &_video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    // 塗り #000 / 外見不透明度 60% / ブレンドモード乗算（Figma準拠）
+    // スクロールで最大幅（--p → 1）になったときにフェードイン
+    // SP: _visual と同じ上下 8px（グラデが端まで届くと黒がバーに乗る）
+    &_grad {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: #000;
+        opacity: calc(0.6 * var(--p)); // 開始 0 → 最大幅時 0.6
+        mix-blend-mode: multiply;
+
+        @include mq(sp) {
+            // Safari: _visual と同じ端あけ（上ブロックコメント参照）
+            top: 8px;
+            right: 0;
+            bottom: 8px;
+            left: 0;
+        }
+    }
+
+    // NB ロゴ（透かし）※非表示のためコメントアウト
+    // &_nb {
+    //     position: absolute;
+    //     left: 50%;
+    //     top: 42%;
+    //     width: spVw(220);
+    //     transform: translate(-50%, -50%);
+    //     opacity: calc(0.12 + var(--p) * 0.18);
+    //     pointer-events: none;
+    //
+    //     @include mq(pc) {
+    //         top: 38%;
+    //         width: pcVw(420);
+    //         max-width: 420px;
+    //     }
+    //
+    //     img {
+    //         display: block;
+    //         width: 100%;
+    //         height: auto;
+    //         // 黒ロゴ → 白に反転
+    //         filter: brightness(0) invert(1);
+    //     }
+    // }
+
+    // ---------- テキスト・ボタン（後半でフェードイン） ----------
+    // 高さは中身なり。下端に置くので justify-content は不要
+    // SP: bottom 8px（Safari: pin 下端の透明帯をテキストで覆わない・上の Safari コメント参照）
+    &_body {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        box-sizing: border-box;
+        padding: 0 spVw(20) spVw(36);
+        // $about-content-in〜full の間で 0→1
+        opacity: clamp(
+            0,
+            calc((var(--p) - #{$about-content-in}) / (#{$about-content-full} - #{$about-content-in})),
+            1
+        );
+        transform: translateY(
+            calc(
+                (1 - clamp(0, calc((var(--p) - #{$about-content-in}) / (#{$about-content-full} - #{$about-content-in})), 1)) *
+                    24px
+            )
+        );
+        // 表示前はクリックさせない（.is-ready で有効化）
+        pointer-events: none;
+
+        @include mq(sp) {
+            bottom: 8px;
+        }
+
+        @include mq(pc) {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; // head と main の上端を揃える
+            padding: 0 pcVw(83) pcVw(62);
+        }
+    }
+
+    // 進捗が進んだら操作可能に（ほぼ表示完了）
+    &.is-ready &_body {
+        pointer-events: auto;
+    }
+
+    &_head {
+        margin-bottom: spVw(25);
+
+        @include mq(pc) {
+            margin-bottom: 0;
+            width: pcVw(143);
+            max-width: 143px;
+            flex-shrink: 0;
+        }
+    }
+
+    &_ttl {
+        width: spVw(111);
+        margin-bottom: spVw(10);
+
+        @include mq(pc) {
+            width: 100%;
+            margin-bottom: pcVw(16);
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    &_sub {
+        @include font_dnp_b();
+        font-size: spFont(11);
+        line-height: 1;
+
+        @include mq(pc) {
+            font-size: min(pcFont(16), 16px);
+            @include font_dnp_b();
+        }
+    }
+
+    &_main {
+        @include mq(pc) {
+            width: pcVw(651);
+            max-width: 651px;
+            flex-shrink: 0;
+        }
+    }
+
+    &_text {
+        @include font_dnp_l();
+        font-size: spFont(13);
+        line-height: lh(28, 13);
+        margin-bottom: spVw(22);
+
+        @include mq(pc) {
+            font-size: min(pcFont(15), 15px);
+            line-height: lh(40, 15);
+            margin-bottom: pcVw(22);
+        }
+    }
+
+    // Movie Play ボタン
+    &_play {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 25px;
+        box-sizing: border-box;
+        width: 180px;
+        max-width: 100%;        
+        word-break: break-all;
+        padding: 15px 22px 15px 43px;
+        border: 1px solid #fff;
+        border-radius: 999px;
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+        @include font_avenir_m();
+        font-size: spFont(14);
+        line-height: 1;
+        transition: background 0.25s ease, color 0.25s ease;
+
+        @include mq(pc) {
+            min-width: unset;
+            width: 210px;
+            max-width: 100%;
+            gap: 30px;
+            height: auto;            
+            padding: 20px 27px 20px 53px;
+            font-size: min(pcFont(16), 16px);
+        }
+
+        @include hover() {
+            background: #fff;
+            color: #000;
+
+            .about_play_icon {
+                border-left-color: #000;
+            }
+        }
+
+        // スマホ：タップ中だけホバーと同じ見た目
+        @media (any-hover: none) {
+            &:active {
+                background: #fff;
+                color: #000;
+
+                .about_play_icon {
+                    border-left-color: #000;
+                }
+            }
+        }
+    }
+
+    &_play_icon {
+        display: block;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: spVw(5) 0 spVw(5) spVw(9);
+        border-color: transparent transparent transparent #fff;
+        transition: border-left-color 0.25s ease;
+
+        @include mq(pc) {
+            border-width: 6px 0 6px 10px;
+        }
+    }
+}
+
+// ==================================================
+// YouTube モーダル
+// ==================================================
+.about_modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: spVw(20);
+
+    &[hidden] {
+        display: none;
+    }
+
+    &_bg {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.78);
+        cursor: pointer;
+    }
+
+    &_box {
+        position: relative;
+        z-index: 1;
+        width: min(920px, 100%);
+    }
+
+    &_close {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 22px;
+            height: 1.5px;
+            background: #fff;
+        }
+
+        &::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        &::after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+    }
+
+    &_frame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        overflow: hidden;
+
+        iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    }
+}

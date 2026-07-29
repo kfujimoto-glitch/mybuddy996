@@ -1,0 +1,176 @@
+@use "../global" as *;
+
+.official {
+    width: spCalc(356);
+    margin: 0 auto spCalc(74);
+    background: #2F2F31;
+    border-radius: spVw(16);
+    padding: spCalc(69) 0 spCalc(58);
+
+    @include mq(pc) {
+        width: pcCalc(1360);     
+        max-width: 1360px;            
+        border-radius: pcVw(24);
+        padding: min(ratio(83, 1360), 83px) 0 min(ratio(97, 1360), 97px);
+        margin: 0 auto min(pcCalc(107), 107px); 
+    }
+
+    &_inner {
+        width: ratio(302, 356);
+        max-width: 100%;
+        margin: 0 auto;
+        @include mq(pc) {
+            width: ratio(1145, 1360);
+            max-width: 1145px;                    
+        }
+    }
+
+    &_wrap {
+        @include mq(pc) {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+
+    &_content {
+        @include mq(pc) {
+            width: ratio(332, 1145);            
+        }
+    }
+
+    &_heading {
+        @include mq(pc) {
+            margin-bottom: ratio(28,332);            
+        }
+    }
+
+    &_ttl_en {
+        width: ratio(200, 302);
+        margin-bottom: ratio(15, 302);
+
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        @include mq(pc) {
+            width: ratio(266, 332);    
+            margin-bottom: ratio(7, 332);
+        }
+    }
+
+    &_ttl_ja {
+        display: block;
+        font-size: spFont(11);
+        color: #fff;
+        @include font_dnp_b();
+
+        line-height: 1;
+        margin-bottom: ratio(24, 302);
+
+        @include mq(pc) {
+            font-size: min(pcFont(16), 16px);
+            line-height: ratio(40.1, 16);
+            margin-bottom: 0;
+        }
+    }
+
+    &_desc {
+        font-size: spFont(13);
+        color: #fff;
+        @include font_dnp_m();
+        line-height: lh(28, 13);
+        margin-bottom: ratio(28, 302);
+        @include mq(pc) {
+            font-size: min(pcFont(14), 14px);
+            line-height: ratio(28, 14);
+            margin-bottom: ratio(20, 332);
+        }
+    }
+
+    &_bnr {
+        margin-bottom: ratio(24, 302);
+        @include mq(pc) {
+            width: ratio(705, 1145);
+            margin-bottom: 0;
+        }
+    }
+    &_bnr_link_img {
+        border-radius: spVw(10);
+        @include mq(pc) {
+            border-radius: pcVw(14);
+        }
+    }
+
+    &_btns {
+        text-align: right;
+        @include mq(pc) {
+            text-align: left;
+        }
+    }
+
+    &_btn {
+        display: inline-flex;
+        color: #fff;
+        align-items: center;
+        width: ratio(148, 302);
+        @include mq(pc) {
+            width: ratio(148, 332);
+        }
+
+        // ホバーで矢印が右へ
+        @include hover() {
+            .official_btn_arrow {
+                transform: translateX(spVw(4));
+
+                @include mq(pc) {
+                    transform: translateX(min(pcVw(6), 6px));
+                }
+            }
+        }
+
+        &_left {
+            width: ratio(8, 148);
+            margin-right: ratio(13, 148);
+            @include mq(pc) {
+                width: ratio(8, 148);
+                margin-right: ratio(13, 148);
+            }
+        }
+
+        &_right {
+            width: ratio(8, 148);
+            margin-right: 0;
+            @include mq(pc) {
+                width: ratio(8, 148);
+                margin-right: 0;
+            }
+
+        }
+
+        &_label {
+            @include font_dnp_b();
+            font-size: spFont(12);
+            letter-spacing: 0em;
+            margin-right: ratio(6, 148);
+            @include mq(pc) {                
+                font-size: min(pcFont(12), 12px);
+                margin-right: ratio(6, 148);
+            }
+        }
+
+        &_arrow {
+            display: block;
+            width: ratio(10, 148);
+            margin-right: ratio(13, 148);
+            transition: transform 0.3s ease;
+            @include mq(pc) {
+                width: ratio(10, 148);
+                margin-right: ratio(13, 148);
+            }
+        }
+    }
+
+}

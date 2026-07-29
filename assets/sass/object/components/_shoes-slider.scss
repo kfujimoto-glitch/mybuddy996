@@ -1,0 +1,91 @@
+@use "../../global" as *;
+
+.shoes_slider {
+    // ===== 調整箇所 =====
+    --shoes-slider-duration: 20s; // 大きいほどゆっくり
+    --shoes-slider-gap: #{spVw(24)};
+    // ====================
+
+    overflow: hidden;
+    width: 100%;
+    // margin-bottom: spVw(53);
+
+    @include mq(pc) {
+        --shoes-slider-duration: 40s; // セット増分に合わせて調整
+        --shoes-slider-gap: #{pcVw(40)};
+        // margin-bottom: min(pcVw(107), 107px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .shoes_slider_track {
+            animation: none;
+        }
+    }
+
+    &_track {
+        display: flex;
+        width: max-content;
+        // -50% → 0 で左から右へ（複製リストでループ）
+        animation: shoes-slider-ltr var(--shoes-slider-duration) linear infinite;
+    }
+
+    &_list {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        gap: var(--shoes-slider-gap);
+        padding-right: var(--shoes-slider-gap);
+    }
+
+    &_item {
+        flex-shrink: 0;
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        &01 {
+            width: spVw(88);
+
+            @include mq(pc) {
+                width: pcVw(113);
+            }
+        }
+
+        &02 {
+            width: spVw(99);
+
+            @include mq(pc) {
+                width: pcVw(128);
+            }
+        }
+
+        &03 {
+            width: spVw(38);
+
+            @include mq(pc) {
+                width: pcVw(49);
+            }
+        }
+
+        &04 {
+            width: spVw(95);
+
+            @include mq(pc) {
+                width: pcVw(123);
+            }
+        }
+    }
+}
+
+@keyframes shoes-slider-ltr {
+    from {
+        transform: translateX(-50%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}

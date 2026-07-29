@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- meta 指定の記載ある-->
+  <title></title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Maru+Gothic&display=swap"
+    rel="stylesheet">
+  <!-- Adobe Fonts: DNP / Avenir -->
+  <script>
+    (function (d) {
+      var config = {
+        kitId: 'nun5mwr',
+        scriptTimeout: 3000,
+        async: true
+      },
+        h = d.documentElement, t = setTimeout(function () { h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive"; }, config.scriptTimeout), tk = d.createElement("script"), f = false, s = d.getElementsByTagName("script")[0], a; h.className += " wf-loading"; tk.src = 'https://use.typekit.net/' + config.kitId + '.js'; tk.async = true; tk.onload = tk.onreadystatechange = function () { a = this.readyState; if (f || a && a != "complete" && a != "loaded") return; f = true; clearTimeout(t); try { Typekit.load(config) } catch (e) { } }; s.parentNode.insertBefore(tk, s)
+    })(document);
+  </script>
+  <!-- Adobe Fonts: Gotham -->
+  <link rel="stylesheet" href="https://use.typekit.net/ogw5xbl.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+
+<body>
+  <!-- Safari 26 上バー対策（SP）: .bg-chrome-top — 詳細は _bg.scss / 下バーは _about.scss（SP pin・8px） -->
+  <div class="bg"></div>
+  <div class="bg-chrome-top" aria-hidden="true"></div>
+
+  <div class="wrapper">
+
+    <!-- ヘッダー -->
+    <header class="header">
+      <div class="header_wrap">
+        <div class="header_logo">
+          <div class="header_logo_nb">
+            <a href="https://shop.newbalance.jp/" target="_blank" class="header_logo_link">
+            <img src="assets/img/header/header_logo_nb.svg" alt="">
+            </a>
+          </div>
+          <div class="header_logo_hm">
+            <a href="https://www.houyhnhnm.jp/" target="_blank" class="header_logo_link">
+            <img src="assets/img/header/header_logo_hm.svg" alt="">
+          </a>
+          </div>
+        </div>
+        <div class="header_mybuddy">
+          <img src="assets/img/header/header_logo_MyBuddy.svg" alt="">
+        </div>
+        <nav class="header_nav">
+          <ul class="header_nav_list">
+            <li class="header_nav_item header_nav_about"><a href="#about" class="header_nav_link"><img
+                  src="assets/img/header/nav_About.svg" alt=""></a></li>
+            <li class="header_nav_item header_nav_article"><a href="#article" class="header_nav_link"><img
+                  src="assets/img/header/nav_ArticleList.svg" alt=""></a></li>
+            <li class="header_nav_item header_nav_official"><a href="#official" class="header_nav_link"><img
+                  src="assets/img/header/nav_OfficialSite.svg" alt=""></a></li>
+          </ul>
+        </nav>
+        <button type="button" class="header_menu_btn" aria-label="メニューを開く">
+          <span class="header_menu_btn_line"></span>
+          <span class="header_menu_btn_line"></span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <!-- KV（メインビジュアル / スライダー） -->
+      <section class="mv js-scroll-reveal js-scroll-reveal--slow">
+        <div class="mv_slider swiper">
+          <div class="mv_slider_list swiper-wrapper">
+            <div class="mv_slider_item swiper-slide">
+              <a class="mv_slider_link" href="#">
+                <div class="mv_slider_media">
+                  <img src="assets/img/mv/mv1.jpg" alt="">
+                  <div class="mv_slider_grad" aria-hidden="true"></div>
+                </div>
+                <div class="mv_slider_caption">
+                  <time class="mv_slider_date" datetime="2026-07-30">2026.7.30</time>
+                  <p class="mv_slider_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                </div>
+              </a>
+            </div>
+            <div class="mv_slider_item swiper-slide">
+              <a class="mv_slider_link" href="#">
+                <div class="mv_slider_media">
+                  <img src="assets/img/mv/mv2.jpg" alt="">
+                  <div class="mv_slider_grad" aria-hidden="true"></div>
+                </div>
+                <div class="mv_slider_caption">
+                  <time class="mv_slider_date" datetime="2026-07-29">2026.7.29</time>
+                  <p class="mv_slider_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                </div>
+              </a>
+            </div>
+            <div class="mv_slider_item swiper-slide">
+              <a class="mv_slider_link" href="#">
+                <div class="mv_slider_media">
+                  <img src="assets/img/mv/mv2.jpg" alt="">
+                  <div class="mv_slider_grad" aria-hidden="true"></div>
+                </div>
+                <div class="mv_slider_caption">
+                  <time class="mv_slider_date" datetime="2026-07-28">2026.7.28</time>
+                  <p class="mv_slider_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                </div>
+              </a>
+            </div>
+            <div class="mv_slider_item swiper-slide">
+              <a class="mv_slider_link" href="#">
+                <div class="mv_slider_media">
+                  <img src="assets/img/mv/mv1.jpg" alt="">
+                  <div class="mv_slider_grad" aria-hidden="true"></div>
+                </div>
+                <div class="mv_slider_caption">
+                  <time class="mv_slider_date" datetime="2026-07-27">2026.7.27</time>
+                  <p class="mv_slider_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                </div>
+              </a>
+            </div>
+            <div class="mv_slider_item swiper-slide">
+              <a class="mv_slider_link" href="#">
+                <div class="mv_slider_media">
+                  <img src="assets/img/mv/mv2.jpg" alt="">
+                  <div class="mv_slider_grad" aria-hidden="true"></div>
+                </div>
+                <div class="mv_slider_caption">
+                  <time class="mv_slider_date" datetime="2026-07-26">2026.7.26</time>
+                  <p class="mv_slider_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div class="mv_slider_controls">
+            <!-- 矢印（SP: キャプション下 / PC: 中央スライド左下） -->
+            <div class="mv_slider_nav">
+              <button type="button" class="mv_slider_prev" aria-label="前のスライド">
+                <img src="assets/img/mv/arrow_left.svg" alt="" width="31" height="12">
+              </button>
+              <button type="button" class="mv_slider_next" aria-label="次のスライド">
+                <img src="assets/img/mv/arrow_right.svg" alt="" width="31" height="12">
+              </button>
+            </div>
+            <!-- PC: ページャー（中央スライド右下） -->
+            <div class="mv_slider_pager"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- About：スクロールで動画拡大 → テキスト表示 / Movie Play で YouTube モーダル -->
+      <section class="about js-scroll-reveal" id="about">
+        <!-- sticky で画面に固定する内側（外側 .about の高さがスクロール距離） -->
+        <div class="about_pin">
+          <!-- 動画＋グラデーション＋NBロゴ -->
+          <div class="about_visual">
+            <video class="about_video" src="assets/video/about.mp4" muted loop playsinline autoplay
+              aria-hidden="true"></video>
+            <div class="about_grad" aria-hidden="true"></div>
+            <!-- NB透かしロゴ（非表示）
+            <div class="about_nb" aria-hidden="true">
+              <img src="assets/img/header/header_logo_nb.svg" alt="">
+            </div>
+            -->
+          </div>
+
+          <!-- 拡大後に浮かび上がるコンテンツ -->
+          <div class="about_body">
+            <div class="about_head">
+              <h2 class="about_ttl js-heading-reveal">
+                <img src="assets/img/about/about.svg" alt="About">
+              </h2>
+              <p class="about_sub">996とは</p>
+            </div>
+            <div class="about_main">
+              <p class="about_text">
+                本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入本企画の説明が入ります本企画の説明が入りま
+              </p>
+              <button type="button" class="about_play" data-about-modal-open>
+                <span class="about_play_label">Movie Play</span>
+                <span class="about_play_icon" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="shoes_slider js-scroll-reveal" aria-hidden="true">
+        <div class="shoes_slider_track">
+          <div class="shoes_slider_list">
+            <div class="shoes_slider_item shoes_slider_item01"><img src="assets/img/shoes_slider/shoes_slider01.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item02"><img src="assets/img/shoes_slider/shoes_slider02.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item03"><img src="assets/img/shoes_slider/shoes_slider03.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item04"><img src="assets/img/shoes_slider/shoes_slider04.png"
+                alt=""></div>
+          </div>
+          <div class="shoes_slider_list">
+            <div class="shoes_slider_item shoes_slider_item01"><img src="assets/img/shoes_slider/shoes_slider01.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item02"><img src="assets/img/shoes_slider/shoes_slider02.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item03"><img src="assets/img/shoes_slider/shoes_slider03.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item04"><img src="assets/img/shoes_slider/shoes_slider04.png"
+                alt=""></div>
+          </div>
+          <div class="shoes_slider_list">
+            <div class="shoes_slider_item shoes_slider_item01"><img src="assets/img/shoes_slider/shoes_slider01.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item02"><img src="assets/img/shoes_slider/shoes_slider02.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item03"><img src="assets/img/shoes_slider/shoes_slider03.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item04"><img src="assets/img/shoes_slider/shoes_slider04.png"
+                alt=""></div>
+          </div>
+          <div class="shoes_slider_list">
+            <div class="shoes_slider_item shoes_slider_item01"><img src="assets/img/shoes_slider/shoes_slider01.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item02"><img src="assets/img/shoes_slider/shoes_slider02.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item03"><img src="assets/img/shoes_slider/shoes_slider03.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item04"><img src="assets/img/shoes_slider/shoes_slider04.png"
+                alt=""></div>
+          </div>
+          <div class="shoes_slider_list">
+            <div class="shoes_slider_item shoes_slider_item01"><img src="assets/img/shoes_slider/shoes_slider01.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item02"><img src="assets/img/shoes_slider/shoes_slider02.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item03"><img src="assets/img/shoes_slider/shoes_slider03.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item04"><img src="assets/img/shoes_slider/shoes_slider04.png"
+                alt=""></div>
+          </div>
+          <div class="shoes_slider_list">
+            <div class="shoes_slider_item shoes_slider_item01"><img src="assets/img/shoes_slider/shoes_slider01.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item02"><img src="assets/img/shoes_slider/shoes_slider02.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item03"><img src="assets/img/shoes_slider/shoes_slider03.png"
+                alt=""></div>
+            <div class="shoes_slider_item shoes_slider_item04"><img src="assets/img/shoes_slider/shoes_slider04.png"
+                alt=""></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 記事（article） -->
+      <section class="article" id="article">
+        <div class="article_wrap">
+
+          <div class="article_lead">
+            <div class="article_lead_inner">
+              <h2 class="article_heading js-heading-reveal">
+                <div class="article_ttl_en">
+                  <img class="" src="assets/img/article/article_logo.svg" alt="">
+                </div>
+                <span class="article_ttl_ja">記事一覧</span>
+              </h2>
+
+              <div class="article_desc">
+                本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明が入ります本企画の説明
+              </div>
+            </div>
+          </div>
+
+
+
+          <ul class="article_list">
+            <li class="article_item js-scroll-reveal">
+              <a href="" target="_blank" class="article_card">
+                <div class="article_card_thumb">
+                  <img src="assets/img/article/article.png" alt="">
+                </div>
+                <p class="article_card_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                <div class="article_card_sub">
+                  <span class="article_card_date">2026.7.30</span>
+                  <span class="article_card_next">
+                    <img class="article_card_next_paren paren_left" src="assets/img/article/paren_left.svg" alt="">
+                    <span class="article_card_next_label">記事を読む</span>
+                    <img class="article_card_next_arrow" src="assets/img/article/article_arrow.svg" alt="">
+                    <img class="article_card_next_paren paren_right" src="assets/img/article/paren_right.svg" alt="">
+                  </span>
+                </div>
+              </a>
+            </li>
+            <li class="article_item js-scroll-reveal">
+              <a href="" target="_blank" class="article_card">
+                <div class="article_card_thumb">
+                  <img src="assets/img/article/article.png" alt="">
+                </div>
+                <p class="article_card_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                <div class="article_card_sub">
+                  <span class="article_card_date">2026.7.30</span>
+                  <span class="article_card_next">
+                    <img class="article_card_next_paren paren_left" src="assets/img/article/paren_left.svg" alt="">
+                    <span class="article_card_next_label">記事を読む</span>
+                    <img class="article_card_next_arrow" src="assets/img/article/article_arrow.svg" alt="">
+                    <img class="article_card_next_paren paren_right" src="assets/img/article/paren_right.svg" alt="">
+                  </span>
+                </div>
+              </a>
+            </li>
+            <li class="article_item js-scroll-reveal">
+              <a href="" target="_blank" class="article_card">
+                <div class="article_card_thumb">
+                  <img src="assets/img/article/article.png" alt="">
+                </div>
+                <p class="article_card_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                <div class="article_card_sub">
+                  <span class="article_card_date">2026.7.30</span>
+                  <span class="article_card_next">
+                    <img class="article_card_next_paren paren_left" src="assets/img/article/paren_left.svg" alt="">
+                    <span class="article_card_next_label">記事を読む</span>
+                    <img class="article_card_next_arrow" src="assets/img/article/article_arrow.svg" alt="">
+                    <img class="article_card_next_paren paren_right" src="assets/img/article/paren_right.svg" alt="">
+                  </span>
+                </div>
+              </a>
+            </li>
+            <li class="article_item js-scroll-reveal">
+              <a href="" target="_blank" class="article_card">
+                <div class="article_card_thumb">
+                  <img src="assets/img/article/article.png" alt="">
+                </div>
+                <p class="article_card_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                <div class="article_card_sub">
+                  <span class="article_card_date">2026.7.30</span>
+                  <span class="article_card_next">
+                    <img class="article_card_next_paren paren_left" src="assets/img/article/paren_left.svg" alt="">
+                    <span class="article_card_next_label">記事を読む</span>
+                    <img class="article_card_next_arrow" src="assets/img/article/article_arrow.svg" alt="">
+                    <img class="article_card_next_paren paren_right" src="assets/img/article/paren_right.svg" alt="">
+                  </span>
+                </div>
+              </a>
+            </li>
+            <li class="article_item js-scroll-reveal">
+              <a href="" target="_blank" class="article_card">
+                <div class="article_card_thumb">
+                  <img src="assets/img/article/article.png" alt="">
+                </div>
+                <p class="article_card_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                <div class="article_card_sub">
+                  <span class="article_card_date">2026.7.30</span>
+                  <span class="article_card_next">
+                    <img class="article_card_next_paren paren_left" src="assets/img/article/paren_left.svg" alt="">
+                    <span class="article_card_next_label">記事を読む</span>
+                    <img class="article_card_next_arrow" src="assets/img/article/article_arrow.svg" alt="">
+                    <img class="article_card_next_paren paren_right" src="assets/img/article/paren_right.svg" alt="">
+                  </span>
+                </div>
+              </a>
+            </li>
+            <li class="article_item js-scroll-reveal">
+              <a href="" target="_blank" class="article_card">
+                <div class="article_card_thumb">
+                  <img src="assets/img/article/article.png" alt="">
+                </div>
+                <p class="article_card_title">記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります記事タイトルが入ります</p>
+                <div class="article_card_sub">
+                  <span class="article_card_date">2026.7.30</span>
+                  <span class="article_card_next">
+                    <img class="article_card_next_paren paren_left" src="assets/img/article/paren_left.svg" alt="">
+                    <span class="article_card_next_label">記事を読む</span>
+                    <img class="article_card_next_arrow" src="assets/img/article/article_arrow.svg" alt="">
+                    <img class="article_card_next_paren paren_right" src="assets/img/article/paren_right.svg" alt="">
+                  </span>
+                </div>
+              </a>
+            </li>
+
+
+
+          </ul>
+        </div>
+      </section>
+
+      <!-- 外部への遷移バナー-->
+      <section class="official js-scroll-reveal js-scroll-reveal--once" id="official">
+        <div class="official_inner">
+          <div class="official_wrap">
+            <div class="official_content">
+              <h2 class="official_heading js-heading-reveal">
+                <div class="official_ttl_en">
+                  <img class="" src="assets/img/official/OfficialSite_logo.svg" alt="">
+                </div>
+                <span class="official_ttl_ja">ABCマート公式サイト</span>
+              </h2>
+              <p class="official_desc">バナーに対しての説明が入りますバナーに対しての説明が入りますバナーに対しての説明が入</p>
+
+              <div class="official_btns pc">
+                <a class="official_btn" href="" target="_blank">
+                  <img class="official_btn_left" src="assets/img/official/official_btn_left.svg" alt="">
+                  <span class="official_btn_label">詳しくはこちら</span>
+                  <img class="official_btn_arrow" src="assets/img/official/official_btn_arrow.svg" alt="">
+                  <img class="official_btn_right" src="assets/img/official/official_btn_right.svg" alt="">
+                </a>
+              </div>
+            </div>
+
+            <div class="official_bnr">
+              <a href="#" class="official_bnr_link">
+                <img class="official_bnr_link_img" src="assets/img/official/OfficialSite_bnr.gif" alt="">
+              </a>
+            </div>
+          </div>
+
+          <div class="official_btns sp">
+            <a class="official_btn" href="" target="_blank">
+              <img class="official_btn_left" src="assets/img/official/official_btn_left.svg" alt="">
+              <span class="official_btn_label">詳しくはこちら</span>
+              <img class="official_btn_arrow" src="assets/img/official/official_btn_arrow.svg" alt="">
+              <img class="official_btn_right" src="assets/img/official/official_btn_right.svg" alt="">
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer js-scroll-reveal">
+
+      <div class="footer_inner">
+        <div class="footer_wrap">
+
+          <div class="footer_head">
+            <div class="footer_head_logo"><img src="assets/img/footer/footer_logo_mybuddy.svg" alt=""> </div>
+            <p class="footer_copy pc">© 2026 Rhino Inc.</p>
+          </div>
+
+          <div class="footer_info">
+
+            <div class="footer_info_nb">
+              <div class="footer_info_nb_logo"><img src="assets/img/footer/footer_logo_nb.svg" alt=""></div>
+              <ul class="footer_info_sns">
+                <li class="footer_info_sns_item">
+                  <a href="#" class="footer_info_sns_link">
+                    <img src="assets/img/footer/icon_x.png" alt="">
+                  </a>
+                </li>
+                <li class="footer_info_sns_item">
+                  <a href="#" class="footer_info_sns_link">
+                    <img src="assets/img/footer/icon_ig.png" alt="">
+                  </a>
+                </li>
+                <li class="footer_info_sns_item">
+                  <a href="#" class="footer_info_sns_link">
+                    <img src="assets/img/footer/icon_line.png" alt="">
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="footer_info_hn">
+              <div class="footer_info_hn_logo"><img src="assets/img/footer/footer_logo_hm.svg" alt=""></div>
+              <ul class="footer_info_sns hn_sns">
+                <li class="footer_info_sns_item">
+                  <a href="#" class="footer_info_sns_link">
+                    <img src="assets/img/footer/icon_x.png" alt="">
+                  </a>
+                </li>
+                <li class="footer_info_sns_item">
+                  <a href="#" class="footer_info_sns_link">
+                    <img src="assets/img/footer/icon_ig.png" alt="">
+                  </a>
+                </li>
+                <li class="footer_info_sns_item">
+                  <a href="#" class="footer_info_sns_link">
+                    <img src="assets/img/footer/icon_line.png" alt="">
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+
+        <p class="footer_copy sp">© 2026 Rhino Inc.</p>
+
+
+
+      </div>
+
+        <!-- 靴歩行アニメ（右→左ループ / SP・PC） -->
+        <div class="footer_walk" aria-hidden="true">
+          <div class="footer_walk_men">
+            <div class="footer_walk_leg leg-1">
+              <div class="footer_walk_shoe"></div>
+            </div>
+            <div class="footer_walk_leg leg-2">
+              <div class="footer_walk_shoe"></div>
+            </div>
+          </div>
+        </div>
+    </footer>
+
+  </div>
+
+  <!-- About：Movie Play → YouTube モーダル -->
+  <div class="about_modal" id="about_modal" hidden>
+    <div class="about_modal_bg" data-about-modal-close></div>
+    <div class="about_modal_box" role="dialog" aria-modal="true" aria-label="Movie">
+      <button type="button" class="about_modal_close" data-about-modal-close aria-label="閉じる"></button>
+      <div class="about_modal_frame">
+        <!-- iframe は JS で開いたときに差し込む（閉じると削除） -->
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル -->
+  <!-- <div class="modal_bg"></div>
+
+  <div class="modal" data-modal="1">
+    <div class="modal_inner">
+      <button type="button" class="modal_close" aria-label="閉じる"><img src="assets/img/modal/close.png" alt=""></button>
+      <div class="modal_scroll">
+        <div class="modal_img"><img src="assets/img/modal/modal_1.png" alt=""></div>
+        <ul class="modal_list">
+          <li class="modal_item">
+            <p class="modal_name">餃子皿 ¥2,990（税込）</p>
+            <div class="card_btn"><a href="https://www.dot-st.com/studioclip/disp/CSfGoodsPage_001.jsp?ITEM_CD=630077"
+                target="_blank" class="card_btn_link">BUY</a></div>
+          </li>
+          <li class="modal_item">
+            <p class="modal_name">炒飯皿 ¥2,490（税込）</p>
+            <div class="card_btn"><a href="https://www.dot-st.com/studioclip/disp/CSfGoodsPage_001.jsp?ITEM_CD=630076"
+                target="_blank" class="card_btn_link">BUY</a></div>
+          </li>
+          <li class="modal_item">
+            <p class="modal_name">レンゲ ¥1,100（税込）</p>
+            <div class="card_btn"><a href="https://www.dot-st.com/studioclip/disp/CSfGoodsPage_001.jsp?ITEM_CD=630078"
+                target="_blank" class="card_btn_link">BUY</a></div>
+          </li>
+          <li class="modal_item">
+            <p class="modal_name">グラス ¥1,100（税込）</p>
+            <div class="card_btn"><a href="https://www.dot-st.com/studioclip/disp/CSfGoodsPage_001.jsp?ITEM_CD=632430"
+                target="_blank" class="card_btn_link">BUY</a></div>
+          </li>
+          <li class="modal_item">
+            <p class="modal_name">せいろ ¥2,640（税込）</p>
+            <div class="card_btn"><a href="https://www.dot-st.com/studioclip/disp/CSfGoodsPage_001.jsp?ITEM_CD=622039"
+                target="_blank" class="card_btn_link">BUY</a></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div> -->
+
+
+
+  <!-- <div class="top_btn">
+    <div class="top_btn_wrap">
+      <a href="#top" class="top_btn_link">
+        <div class="top_btn_img">
+          <div class="top_btn_img_1">
+            <img src="assets/img/top-btn/back_to_icon_1.png" alt="">
+          </div>
+          <div class="top_btn_img_2">
+            <img src="assets/img/top-btn/back_to_icon_2.png" alt="">
+          </div>
+        </div>
+
+        <div class="polygon">
+          <img src="assets/img/top-btn/polygon.png" alt="">
+        </div>
+        <div class="top_btn_txt">
+          TOPへ戻る
+        </div>
+      </a>
+    </div>
+  </div> -->
+
+  <!-- Swiper -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script src="assets/js/index.js"></script>
+</body>
+
+</html>

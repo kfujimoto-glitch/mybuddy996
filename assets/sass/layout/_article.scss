@@ -1,0 +1,241 @@
+@use "../global" as *;
+
+.article {
+
+    width: spCalc(335);
+    margin: spCalc(56) auto spCalc(62);
+    max-width: 100%;
+
+    @include mq(pc) {
+        width: pcCalc(1280);     
+        max-width: 1280px;
+        // margin: 0 auto pcCalc(153);
+        // margin: 0 auto 153px;
+        margin: min(pcCalc(107), 107px) auto min(pcCalc(153), 153px);
+    }
+
+    &_lead {
+        @include mq(pc) {
+            margin-bottom: pcArticle(50);
+        }
+
+        &_inner {
+            @include mq(pc) {
+                display: flex;
+                justify-content: space-between;
+            }
+        }
+    }
+
+    &_heading {
+        width: spArticle(185);
+        margin-bottom: spArticle(25);
+
+        @include mq(pc) {
+            width: pcArticle(248);
+            margin-bottom: 0;
+        }
+    }
+
+    &_ttl {
+        &_en {
+            margin-bottom: ratio(14, 185);
+
+            img {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+        }
+
+        &_ja {
+            display: block;
+            font-size: spFont(11);
+            @include font_dnp_b();
+
+            @include mq(pc) {
+                font-size: min(pcFont(16), 16px);
+                line-height: 1;
+            }
+        }
+    }
+
+    &_desc {
+        @include font_dnp_l();
+        font-size: spFont(13);
+        line-height: lh(28, 13);
+        margin-bottom: spArticle(30);
+
+        @include mq(pc) {
+            font-size: min(pcFont(15), 15px);
+            line-height: lh(40.1, 15);
+            width: pcArticle(495);
+            margin-top: pcArticle(25);
+            margin-bottom: 0;
+        }
+    }
+
+    &_list {
+
+        @include mq(pc) {
+            width: ratio(1276, 1280);   
+            max-width: 1276px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+
+        }
+    }
+
+    &_item {
+        margin-bottom: spArticle(59);
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        @include mq(pc) {
+            width: ratio(612, 1276);
+            margin-bottom: ratio(90, 1276);
+            &:nth-last-child(2) {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &_card {
+
+        // カードホバーでタイトルを薄く
+        @include hover() {
+            .article_card_title {
+                opacity: 0.55;
+            }
+        }
+
+        &_thumb {
+            overflow: hidden;
+            // 拡大時も角丸を維持（親でクリップ）
+            border-radius: spVw(9);
+            transform: translateZ(0); // Safari で overflow + radius が効くように
+            margin-bottom: spArticle(19);
+
+            @include mq(pc) {
+                border-radius: min(pcVw(16), 16px);
+                margin-bottom: ratio(22, 612);
+            }
+
+            img {
+                display: block;
+                width: 100%;
+                height: auto;
+                transition: transform 0.4s ease;
+            }
+
+            // ホバーで画像拡大
+            @include hover() {
+                img {
+                    transform: scale(1.08);
+                }
+            }
+        }
+
+        &_title {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2; // SP: 2行まで、以降は…
+            overflow: hidden;
+            margin-bottom: spArticle(20);
+            font-size: spFont(14);
+            line-height: lh(30, 14);
+            @include font_dnp_b();
+            color: #2F2F31;
+            transition: opacity 0.3s ease;
+
+            @include mq(pc) {
+                -webkit-line-clamp: 1; // PC: 1行まで
+                font-size: min(pcFont(15), 15px);
+                line-height: lh(28, 15);
+                margin-bottom: ratio(12, 612);
+            }
+        }
+        
+        &_sub {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            ;
+        }
+
+        &_date {
+            @include font_avenir_h();
+            font-size: spFont(12);
+            color: #939393;
+
+            @include mq(pc) {
+                font-size: min(pcFont(13), 13px);
+                line-height: lh(28, 13);
+            }
+        }
+
+        &_next {
+            display: inline-flex;
+            color: #2f2f31;
+            align-items: center;
+            width: spArticle(113);
+
+            @include mq(pc) {
+                width: ratio(129, 612);
+            }
+
+
+            &_paren {
+                width: ratio(8, 113);
+                margin-right: ratio(13, 113);
+
+                @include mq(pc) {
+                    width: ratio(8, 129);
+                    margin-right: ratio(15, 129);
+                }
+
+                &.paren_right {
+                    margin-right: 0;
+                }
+            }
+
+            &_label {
+                @include font_dnp_b();
+                font-size: spFont(10.55);
+                margin-right: ratio(5, 113);                
+                @include mq(pc) {
+                    font-size: min(pcFont(12), 12px);
+                    line-height: lh(28, 12);
+                    margin-right: ratio(6, 129);
+                }
+
+                // ラベルホバーで矢印が右へ
+                @include hover() {
+                    & ~ .article_card_next_arrow {
+                        transform: translateX(spVw(4));
+
+                        @include mq(pc) {
+                            transform: translateX(min(pcVw(6), 6px));
+                        }
+                    }
+                }
+            }
+
+            &_arrow {
+                display: block;
+                width: ratio(9, 113);
+                margin-right: ratio(13, 113);
+                transition: transform 0.3s ease;
+
+                @include mq(pc) {
+                    margin-right: ratio(15, 129);
+                }
+
+            }
+        }
+    }
+
+}

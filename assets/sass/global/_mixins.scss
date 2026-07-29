@@ -1,0 +1,129 @@
+@use "variables" as *;
+
+$breakpoints: (
+  "sp": "screen and (max-width: 919px)",
+  "pc": "screen and (min-width: 920px)",
+  "pc_large": "screen and (min-width: 1550px)",
+) !default;
+
+@mixin mq($breakpoint: pc) {
+  @media #{map-get($breakpoints, $breakpoint)} {
+    @content;
+  }
+}
+
+@function spCalc($value){
+  // @return calc($value / 750) * 100%;
+  @return calc($value / 375 * 100%);
+}
+@function pcCalc($value){
+  // @return calc($value / 2732) * 100%;
+  @return calc($value / 1440 * 100%);
+}
+
+@function spVw($value){
+  @return calc($value / 375 * 100vw);
+}
+@function pcVw($value){
+  @return calc($value / 1440 * 100vw);
+}
+
+@function spFont($value){
+  @return calc($value / 375 * 100vw);
+}
+@function pcFont($value){
+  @return calc($value / 1440 * 100vw);
+}
+
+@function lh($lineHeight, $fontSize) {
+  @return calc($lineHeight / $fontSize);
+}
+
+@function ratio($value, $base, $unit: 100%) {
+  @return calc($value / $base * $unit);
+}
+
+
+@function spArticle($value){
+  @return calc($value / 335 * 100%);
+}
+@function pcArticle($value){
+  @return calc($value / 1280 * 100%);
+}
+// @function left($value){
+//   @return calc($value / 745 * 100%);
+// }
+// @function right($value){
+//   @return calc($value / 745 * 100%);
+// }
+// @function pc($value){
+//   @return calc($value / 866 * 100%);
+// }
+
+
+
+@mixin hover() {
+  @media (any-hover: hover) {
+      &:hover {
+          @content;
+      }
+  }
+}
+
+// @mixin font_bowlby_one_sc() {
+//   font-family: "Bowlby One SC", sans-serif;
+//   font-weight: 400;
+//   font-style: normal;
+// }
+
+// @mixin zen_maru_gothic() {
+//   font-family: "Zen Maru Gothic", sans-serif;
+//   font-weight: 400;
+//   font-style: normal;
+// }
+
+// 和文フォント — DNP ShueiGoGinStd
+@mixin font_dnp_l() {
+  font-family: "dnp-shuei-gothic-gin-std", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+@mixin font_dnp_m() {
+  font-family: "dnp-shuei-gothic-gin-std", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+@mixin font_dnp_b() {
+  font-family: "dnp-shuei-gothic-gin-std", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+// 欧文フォント — Avenir LT Pro
+@mixin font_avenir_m() {
+  font-family: "avenir-lt-pro", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+@mixin font_avenir_h() {
+  font-family: "avenir-lt-pro", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+// 欧文フォント — Gotham
+@mixin font_gotham_l() {
+  font-family: "gotham", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+@mixin font_gotham_m() {
+  font-family: "gotham", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
