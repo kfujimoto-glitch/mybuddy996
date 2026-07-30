@@ -50,11 +50,11 @@ $mv-sp-controls-color: #2f2f31; // SPの矢印・ページャー色
 .mv {
   overflow: hidden;
   width: 100%;
-  margin-top: spCalc(66);
+  margin-top: spCalc(93);
   @include mq(pc) {
     // margin-top: pcVw(53);
     // margin-top: 53px;
-    margin-top: min(pcCalc(53), 53px);
+    margin-top: min(pcCalc(41), 41px);
   }
 
   &_slider {

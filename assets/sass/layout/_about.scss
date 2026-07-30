@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "../global" as *;
 
 // ==================================================
@@ -7,10 +8,17 @@
 // ==================================================
 $about-scroll-h: 220vh; // スクロール距離（大きいほどゆっくり拡大）
 $about-scale-start-sp: 0.82; // SP 開始時の動画スケール
-$about-scale-start-pc: 0.72; // PC 開始時の動画スケール
-$about-scale-end: 1; // 終了時の動画スケール
+$about-scale-end: 1; // SP 終了時の動画スケール
 $about-content-in: 0.45; // この進捗からコンテンツ表示開始
 $about-content-full: 0.85; // この進捗でコンテンツ表示完了
+
+// PC 最初の幅（Figma 224:364 ≈651）— MV 中央スライド（877）より小さく、同じ可変式で連動
+$about-start-w-camp: 651;
+$about-mv-camp: 1440;
+$about-mv-slide: 877;
+$about-mv-space: 23;
+$about-mv-n: math.div($about-mv-camp + $about-mv-space, $about-mv-slide + $about-mv-space);
+$about-start-vs-mv: math.div($about-start-w-camp, $about-mv-slide);
 
 .about {
     // JS が入れる進捗（0〜1）
@@ -22,7 +30,6 @@ $about-content-full: 0.85; // この進捗でコンテンツ表示完了
     color: #fff;
     margin-bottom: spVw(45);
     @include mq(pc) {
-        --scale-start: #{$about-scale-start-pc};
         margin-bottom: min(pcVw(90), 90px);
     }
 
@@ -52,10 +59,9 @@ $about-content-full: 0.85; // この進捗でコンテンツ表示完了
     // ・下端に高 z-index の帯を置かない（靴アニメに被る）
     // ============================================================
     //
-    // 【PC 動画（Safari バーとは無関係）】
-    // about.mp4 は 1920×1080（16:9）。pin いっぱい cover だと上下が切れるため、
-    // _visual だけ pin 内最大 16:9 にして開始時は全体表示。
-    // スクロールで --scale-end まで拡大し横幅いっぱいにする。
+    // 【PC 動画（Safari バーとは無関係・ここだけ変更）】
+    // 開始幅 = MV中央スライダー幅 × (651/877)（Figma「最初の幅」）
+    // 終了 = 横幅いっぱい。幅を --p で補間（scale は使わない）。
     // pin は top:0 / 100vh のまま（SP の端あけは付けない）。
     // ============================================================
     &_pin {
@@ -65,7 +71,7 @@ $about-content-full: 0.85; // この進捗でコンテンツ表示完了
         overflow: hidden;
 
         @include mq(pc) {
-            // PC の 16:9 枠サイズ計算用（100cqw / 100cqh）※Safari 対策ではない
+            // PC の開始〜終了幅計算用（100cqw）※Safari 対策ではない
             container-type: size;
         }
 
@@ -95,17 +101,21 @@ $about-content-full: 0.85; // この進捗でコンテンツ表示完了
             left: 0;
         }
 
-        // PC: 16:9 全体表示 → スクロールで横幅いっぱい（Safari バー対策ではない）
+        // PC: Figma最初の幅（MV中央より細い）→ スクロールで横いっぱい
         @include mq(pc) {
             inset: auto;
             top: 50%;
             left: 50%;
-            width: min(100cqw, calc(100cqh * 16 / 9));
-            height: min(100cqh, calc(100cqw * 9 / 16));
-            --scale-end: calc(100cqw / min(100cqw, calc(100cqh * 16 / 9)));
-            transform: translate(-50%, -50%) scale(
-                calc(var(--scale-start) + (var(--scale-end) - var(--scale-start)) * var(--p))
+            // MV と同じ slidesPerView 式 × (651/877)
+            --about-w0: calc(
+                (100cqw - #{($about-mv-n - 1) * $about-mv-space}px) / #{$about-mv-n} * #{$about-start-vs-mv}
             );
+            --about-w1: 100cqw;
+            width: calc(var(--about-w0) + (var(--about-w1) - var(--about-w0)) * var(--p));
+            aspect-ratio: 16 / 9;
+            height: auto;
+            transform: translate(-50%, -50%);
+            will-change: width;
         }
     }
 

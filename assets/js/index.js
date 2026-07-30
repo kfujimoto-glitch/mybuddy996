@@ -147,15 +147,31 @@
   (function () {
     var BP_PC = 920;
     var CAMP = 1440;
-    var WIDTH_LARGE = 495; // 元の幅（変えない）
-    var WIDTH_SMALL = 178; // コンパクト時の幅（変えない）
-    var MARGIN_TOP_LARGE = 6;
+    var WIDTH_LARGE = 618; // 元の幅（変えない）
+    var WIDTH_SMALL = 208; // コンパクト時の幅（変えない）
+    var MARGIN_TOP_LARGE = -9;
     var SCROLL_RANGE = 180; // この距離で縮小完了（大きいほどゆっくり）
     var DEADZONE = 2; // これ未満は「一番上」扱い（リロード時の微小スクロール対策）
 
     var header = document.querySelector(".header");
     var logo = document.querySelector(".header_mybuddy");
+    var headerLogo = document.querySelector(".header_logo");
+    var blendLogo = document.querySelector(".header_mybuddy_blend");
+    var mv = document.querySelector(".mv_slider") || document.querySelector(".mv");
+    var logoImg = logo ? logo.querySelector("img") : null;
+    var logoIntroDone = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!header || !logo) return;
+
+    if (logoImg && !logoIntroDone) {
+      logoImg.addEventListener("animationend", function (e) {
+        if (e.animationName !== "mybuddyReveal") return;
+        logoIntroDone = true;
+        logo.classList.add("is-intro-done");
+        syncBlendLogo();
+      });
+    } else if (logo) {
+      logo.classList.add("is-intro-done");
+    }
 
     // ブラウザのスクロール復元で途中位置になるのを防ぐ
     if ("scrollRestoration" in history) {
@@ -183,16 +199,76 @@
       return scrollY < DEADZONE ? 0 : scrollY;
     }
 
+    function syncBlendLogo() {
+      if (!blendLogo || !mv) return;
+
+      function resetBlend() {
+        blendLogo.style.opacity = "0";
+        logo.classList.remove("is-blend-active");
+      }
+
+      // コンパクト時 / 登場アニメ前は通常表示
+      if (!logoIntroDone || header.classList.contains("is-compact")) {
+        resetBlend();
+        return;
+      }
+
+      var logoRect = logo.getBoundingClientRect();
+      var mvRect = mv.getBoundingClientRect();
+      var overlapTop = Math.max(logoRect.top, mvRect.top);
+      var overlapBottom = Math.min(logoRect.bottom, mvRect.bottom);
+      var overlapHeight = overlapBottom - overlapTop;
+
+      // MVと重なっていないときは通常の黒ロゴ
+      if (overlapHeight <= 0 || logoRect.width <= 0 || logoRect.height <= 0) {
+        resetBlend();
+        return;
+      }
+
+      // Figma「除外」: 白化したロゴ全体に exclusion
+      // （明るい背景→黒っぽく / 暗い写真→白っぽく見える）
+      logo.classList.add("is-blend-active");
+      blendLogo.style.opacity = "1";
+      blendLogo.style.width = logoRect.width + "px";
+      blendLogo.style.height = "auto";
+      blendLogo.style.left = logoRect.left + "px";
+      blendLogo.style.top = logoRect.top + "px";
+      blendLogo.style.transform = "none";
+    }
+
+    // SP: is-compact はスクロール位置と同期（遅延解除だと幅がガクつく）
+    function setSpCompact(scrollY) {
+      header.classList.toggle("is-compact", scrollY > 0);
+    }
+
+    // SP用の定数（Figma 540:753: 375×62）
+    var SP_BASE = 375;
+    var SP_WIDTH_LARGE = 319;   // spCalc(319) 相当
+    var SP_WIDTH_SMALL = 120;   // コンパクト時（Figma中央≈120）
+    var SP_MARGIN_TOP_RATIO = 50 / 349;
+    var SP_SCROLL_RANGE = 180;
+
+    function spToPx(v) {
+      return (v / SP_BASE) * Math.min(window.innerWidth, SP_BASE);
+    }
+
     function apply(scrollY) {
       scrollY = normalizeY(scrollY);
 
       if (window.innerWidth < BP_PC) {
-        header.classList.remove("is-compact");
-        logo.style.width = "";
+        // SP: スクロール連動でロゴ縮小
+        var sp = Math.min(Math.max(scrollY / SP_SCROLL_RANGE, 0), 1);
+        var st = easeOutCubic(sp);
+
+        var sw = lerp(spToPx(SP_WIDTH_LARGE), spToPx(SP_WIDTH_SMALL), st);
+        logo.style.width = sw + "px";
         logo.style.maxWidth = "";
-        logo.style.top = "";
-        logo.style.marginTop = "";
-        logo.style.transform = "";
+        logo.style.top = lerp(0, 50, st) + "%";
+        logo.style.marginTop = lerp(SP_MARGIN_TOP_RATIO * spToPx(349), 0, st) + "px";
+        logo.style.transform = "translate(-50%, " + lerp(0, -50, st) + "%)";
+
+        setSpCompact(scrollY);
+        syncBlendLogo();
         return;
       }
 
@@ -208,6 +284,7 @@
 
       // ほぼ縮みきったらヘッダー背景・padding を切り替え
       header.classList.toggle("is-compact", progress > 0.85);
+      syncBlendLogo();
     }
 
     // ロゴ位置だけ同期（スクロール位置は動かさない）

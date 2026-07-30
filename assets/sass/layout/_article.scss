@@ -15,16 +15,17 @@
     }
 
     &_lead {
+        margin-bottom: spArticle(45);
         @include mq(pc) {
-            margin-bottom: pcArticle(50);
+            margin-bottom: pcArticle(60);
         }
 
-        &_inner {
-            @include mq(pc) {
-                display: flex;
-                justify-content: space-between;
-            }
-        }
+        // &_inner {
+        //     @include mq(pc) {
+        //         display: flex;
+        //         justify-content: space-between;
+        //     }
+        // }
     }
 
     &_heading {

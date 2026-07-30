@@ -2,27 +2,36 @@
 
 .header {
 
-    width: spCalc(345);
-    margin: 0 auto;
-    padding: spCalc(19) 0;
+    // 幅は常に100%（幅アニメで横がちらつかない）
+    width: 100%;
+    margin: 0;
+    padding: spCalc(19) spCalc(13) spCalc(19);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background-color: transparent;
+    background-image: none;
+    // 背景は即時切替（transition すると上に戻ったとき光って見える）
+    transition: padding 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+
+    // SP スクロール固定時（Figma 540:753 — 375×62）
+    &.is-compact {
+        padding: spCalc(20) spCalc(12);
+        background-color: #eaeaea;
+        background-image: url("../../assets/img/bg/noise.jpg");
+        background-repeat: repeat;
+        background-size: 200px 200px;
+    }
+
     @include mq(pc) {
         width: 100%;
         // padding: pcVw(40) pcVw(35) 0;
         // padding: 40px 35px 0;
-        padding: min(pcCalc(40), 40px) min(pcCalc(35), 35px) 0;
-        position: sticky;
-        top: 0;
-        z-index: 200;
-        transition: padding 0.25s ease-out;
+        padding: min(pcCalc(50), 50px) min(pcCalc(40), 40px) 0;
 
         // スクロール固定時（Figma 406:981）
         &.is-compact {
-            padding: min(pcCalc(40), 40px) min(pcCalc(35), 35px) min(pcCalc(40), 40px);
-            // sticky中に下のコンテンツが透けないよう背景
-            background-color: #eaeaea;
-            background-image: url("../../assets/img/bg/noise.jpg");
-            background-repeat: repeat;
-            background-size: 200px 200px;
+            padding: min(pcCalc(50), 50px) min(pcCalc(40), 35px) min(pcCalc(44), 44px);
         }
     }
 
@@ -38,45 +47,69 @@
     &_logo {
         display: flex;
         justify-content: space-between;
-        align-items: center;  
-        width: ratio(157, 345);        
+        align-items: center;
+        // SP: 初期からコンパクト幅（Figma 540:753）
+        width: spCalc(62);
 
         @include mq(pc) {
-            // width: pcVw(230);
-            // width: 230px;
-            width: pcCalc(230);
-            max-width: 230px;                
+            width: pcCalc(250);
+            max-width: 250px;
+
+            .header.is-compact & {
+                width: pcCalc(250);
+                max-width: 250px;
+            }
         }
 
         &_nb {
-            width: ratio(47,157);   
+            width: ratio(36, 62);
+
             @include mq(pc) {
-                // width: pcVw(71);
-                // width: 71px;
-                width: ratio(71, 230);
-                max-width: 71px;
+                width: ratio(77, 250);
+                max-width: 77px;
+
+                .header.is-compact & {
+                    width: ratio(77, 250);
+                }
             }
 
             img {
                 width: 100%;
-                height: auto; // アスペクト比維持（base.scssで既に効いている）
-                display: block; // 下の余白対策
+                height: auto;
+                display: block;
             }
         }
 
         &_hm {
-            width: ratio(87,157);   
+            width: ratio(15, 62);
+
             @include mq(pc) {
-                // width: pcVw(132);
-                // width: 132px;
-                width: ratio(132, 230);
-                max-width: 132px;
+                width: ratio(143, 250);
+                max-width: 143px;
+
+                .header.is-compact & {
+                    width: ratio(143, 250);
+                }
             }
 
             img {
                 width: 100%;
-                height: auto; // アスペクト比維持（base.scssで既に効いている）
-                display: block; // 下の余白対策
+                height: auto;
+                display: block;
+            }
+
+            .header_logo_hm_pc {
+                display: none;
+                @include mq(pc) {
+                    display: block;
+                }
+            }
+
+            .header_logo_hm_sp {
+                display: block;
+                @include mq(pc) {
+                    display: none;
+                }
             }
         }
 
@@ -85,21 +118,21 @@
     &_mybuddy {
         position: absolute;
         z-index: 1000;
-        width: ratio(314, 345);
-        // top の % は親の「高さ」基準 → ratio(60, 345) だと意図どおりにならない
-        // 横幅345基準でずらすなら margin-top（%が親の幅基準）を使う
+        width: ratio(319, 349);
+        // top の % は親の「高さ」基準 → ratio(60, 349) だと意図どおりにならない
+        // 横幅349基準でずらすなら margin-top（%が親の幅基準）を使う
         top: 0;
-        margin-top: ratio(60, 345);
+        margin-top: ratio(50, 349);
         left: 50%;
         transform: translate(-50%, 0%);
         @include mq(pc) {
             // width: pcVw(495);
             // width: 495px;
-            width: pcCalc(495);
-            max-width: 495px;
+            width: pcCalc(618);
+            max-width: 618px;
             // top の % は高さ基準なので使わない。margin-top は親幅基準
             top: 0;
-            margin-top: min(pcCalc(6), 6px);
+            top: min(pcCalc(-9), -9px);
             left: 50%;
             transform: translate(-50%, 0);
             transform-origin: center top;
@@ -107,14 +140,18 @@
             transition: width 0.25s ease-out, max-width 0.25s ease-out, margin-top 0.25s ease-out, transform 0.25s ease-out, top 0.25s ease-out;
         }
 
-        // 固定時：ヘッダー内に収まるサイズ（Figma ≈178）
+        // 固定時：ヘッダー内に収まるサイズ
         .header.is-compact & {
+            // SP（Figma: 中央120px / 375 ≈ 32%）
+            width: spCalc(120);
+            margin-top: 0;
+            top: 50%;
+            transform: translate(-50%, -50%);
+
             @include mq(pc) {
-                width: min(pcCalc(178), 178px);
+                // PC（Figma ≈178）
+                width: min(pcCalc(208), 208px);
                 max-width: 178px;
-                top: 50%;
-                margin-top: 0;
-                transform: translate(-50%, -50%);
             }
         }
 
@@ -124,6 +161,37 @@
             display: block;
             // 登場アニメは foundation/_animations.scss
         }
+
+        // ブレンド表示中は通常ロゴを隠す（二重表示防止）
+        &.is-blend-active {
+            visibility: hidden;
+        }
+
+        &.is-intro-done img {
+            filter: none;
+        }
+    }
+
+    // Figma「除外」相当: 白化したロゴ × mix-blend-mode: exclusion
+    // （黒SVGのままだと除外してもカンプのように色が変わらない）
+    &_mybuddy_blend {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1200;
+        pointer-events: none;
+        opacity: 0;
+        mix-blend-mode: exclusion;
+        will-change: left, top, width, opacity;
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+            // #2F2F31 → 白。exclusion で明部=黒 / 暗部=白になる
+            filter: brightness(0) invert(1);
+            opacity: 1;
+        }
     }
 
     &_nav {
@@ -132,8 +200,8 @@
             display: block;
             // width: pcVw(290);
             // width: 290px;
-            width: pcCalc(290);
-            max-width: 290px;
+            width: pcCalc(287);
+            max-width: 287px;
         }
     }
 
@@ -149,7 +217,7 @@
         @include mq(pc) {
            // width: pcVw(49);
            // width: 49px;
-           width: ratio(49, 290);
+           width: ratio(49, 287);
            max-width: 49px;
         }
     }
@@ -158,7 +226,7 @@
         @include mq(pc) {
             // width: pcVw(87);
             // width: 87px;
-            width: ratio(87, 290);
+            width: ratio(87, 287);
             max-width: 87px;
         }
     }
@@ -166,8 +234,8 @@
         @include mq(pc) {
             // width: pcVw(92);
             // width: 92px;
-            width: ratio(92, 290);
-            max-width: 92px;
+            width: ratio(88, 287);
+            max-width: 88px;
         }
     }
 
@@ -182,44 +250,23 @@
 
 
     // ---------- SPメニューボタン（Figma: 2本線 / 幅33・中心間≈11） ----------
-    &_menu_btn {
-        display: flex;
-        flex-direction: column;
-        justify-content: center; // 線ブロックをボタン内で中央寄せ
-        align-self: center; // header_logo と垂直中央揃え
+    &_menu_btn {                
         box-sizing: border-box;
-        width: ratio(33, 345);
-        // 上下微調整（負=上 / 正=下）※marginの%は親幅基準
-        margin-top: ratio(-6, 345);
-        padding: 0;
-        border: 0;
-        background: transparent;
-        cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        // 空 span の文字ストラットで高さが崩れるのを防ぐ
-        font-size: 0;
-        line-height: 0;
+        width: ratio(38, 349);
+        // margin-top: ratio(-6, 349);
+   
 
         @include mq(pc) {
             display: none;
         }
 
-        &_line {
-            display: block;
-            flex: 0 0 1.25px; // 潰さない（2本目が 1.5px にならない対策）
+        img {
             width: 100%;
-            height: 1.25px;
-            min-height: 1.25px;
-            background: #000;
-            border-radius: 0;
-            pointer-events: none;
-
-            // gapの%は高さ基準で壊れる → ボタン幅33基準の margin-top
-            & + & {
-                margin-top: ratio(9.5, 33); // 1.5px線の中心間 ≈ 11
-            }
+            height: auto; // アスペクト比維持（base.scssで既に効いている）
+            display: block; // 下の余白対策
         }
+
+     
     }
 
 
