@@ -2,48 +2,31 @@
 @use "../global" as *;
 
 // ==================================================
-// フッター歩行アニメ（幅・スピード・動きはここだけ変える）
+// フッター歩行（nb_movie.gif / 左→右ループ / SCSSのみ）
+// ★幅・余白・スピードはここだけ変える
+// がたつき対策: translate3d / will-change / 固定アスペクト / 単一transform / 等速
 // ==================================================
 // --- SP（375基準 / spVw） ---
-$fw-sp-shoe-w: 95; // 靴の幅
-$fw-sp-shoe-h: 40; // 靴の高さ
-// ★歩幅（見た目）= 振り角 × 脚の長さ（view-h とは独立）
-$fw-sp-stride: 36deg; // 振り角（大きいほど大股）
-$fw-sp-leg-h: 130; // 脚の長さ＝振り子の腕（大きいほど振り幅が広がる）※見えない腕は上にはみ出してクリップ
-$fw-sp-view-h: 70; // 見える箱の高さ（小さくすると上余白だけ狭まる／歩幅は変わらない）
-// ★歩く速さ（step と cross をセットで調整）
-//   目安: cross ≒ 画面幅 ÷ (1歩の距離) × (step / 2)
-//   1歩の距離 ≒ 2 × leg-h×0.8 × sin(stride)
-$fw-sp-step: 1.5s; // 足踏み1サイクル（小さいほど足が速い）
-$fw-sp-cross: 5s; // 右端→左端（小さいほど速く進む）※stepと揃えるとすべりにくい
-$fw-sp-mt: 30; // 上余白（箱の外）
-$fw-sp-mb: 24; // 下余白
-$fw-sp-clear: 15; // 下のはみ出し余裕（振りで切れないように）
-$fw-sp-lift: 8; // 足上げ量（大きすぎると浮いて見える）
-$fw-sp-nudge: 0; // 前後のスライド量（ぐらつき軽減のため 0）
-$fw-sp-tilt: 2deg; // 靴の傾き（脚の振りに重ねるとぐらつくので控えめ）
+$fw-sp-gif-w: 240; // GIF表示幅（気持ち小さめ）
+$fw-sp-mt: 0;
+$fw-sp-mb: 24;
+$fw-sp-cross: 12s; // 大きいほどゆっくり（ガタ見えにくい）
 
 // --- PC（1440基準 / pcVw） ---
-$fw-pc-shoe-w: 150; // 靴の幅
-$fw-pc-shoe-h: 55; // 靴の高さ
-$fw-pc-stride: 36deg; // 振り角
-$fw-pc-leg-h: 220; // 脚の長さ（歩幅用／見えない腕）
-$fw-pc-view-h: 110; // 見える箱の高さ（上余白調整用）
-$fw-pc-step: 2s; // 足踏み1サイクル
-$fw-pc-cross: 10s; // 横断時間
-$fw-pc-mt: 55; // 上余白（箱の外）
-$fw-pc-mb: 40; // 下余白
-$fw-pc-clear: 15; // 下のはみ出し余裕
-$fw-pc-lift: 14; // 足上げ量
-$fw-pc-nudge: 0; // 前後のスライド量
-$fw-pc-tilt: 2deg; // 靴の傾き
+$fw-pc-gif-w: 440; // GIF表示幅（気持ち小さめ）
+$fw-pc-mt: 0;
+$fw-pc-mb: 40;
+$fw-pc-cross: 20s;
 
+// GIF実寸（800×275）
+$fw-gif-ratio: math.div(275, 800);
 .footer {
     &_inner {
-        margin-bottom: spCalc(45);
+        // margin-bottom: spCalc(45);
+        margin-bottom: 10%;
         @include mq(pc) {
-            width: pcCalc(1276);
-            max-width: 1276px;
+            width: pcCalc(1275);
+            max-width: 1275px;
             margin: 0 auto;
             margin-bottom: min(pcCalc(60), 60px);
         }
@@ -62,7 +45,7 @@ $fw-pc-tilt: 2deg; // 靴の傾き
         margin-bottom: spCalc(33);
 
         @include mq(pc) {
-            width: ratio(312, 1276);
+            width: ratio(319, 1275);
             margin-bottom: 0;
         }
 
@@ -72,7 +55,7 @@ $fw-pc-tilt: 2deg; // 靴の傾き
 
             @include mq(pc) {
                 width: 100%;
-                margin-bottom: ratio(6, 312);
+                margin-bottom: ratio(21, 319);
             }
 
             img {
@@ -88,7 +71,7 @@ $fw-pc-tilt: 2deg; // 靴の傾き
         margin: 0 auto spCalc(28);
 
         @include mq(pc) {
-            width: ratio(330, 1276);
+            width: ratio(330, 1275);
             margin: 0;
         }
 
@@ -176,151 +159,91 @@ $fw-pc-tilt: 2deg; // 靴の傾き
         font-size: spFont(13.68);
         text-align: center;
         @include font_avenir_m();
+        color: #2F2F31;
 
         @include mq(pc) {
             font-size: min(pcFont(16.4), 16.4px);
             text-align: left;
+            line-height: ratio(32.8, 16.4);
         }
     }
 
-    // ---------- 歩行アニメ（SP / PC） ----------
-    // view-h = 見える箱の高さ / leg-h = 振り子の腕（上にはみ出してクリップ）
+    // ---------- 歩行（nb_movie.gif / 左→右） ----------
     &_walk {
         position: relative;
-        // x だけ隠す。y は padding で余裕を確保（下端切れ防止）
-        // 脚の上端はみ出しもここでクリップ → 上余白を詰められる
-        overflow-x: hidden;
-        overflow-y: hidden;
-        box-sizing: content-box;
+        overflow: hidden;
         width: 100%;
-        height: spVw($fw-sp-view-h);
-        padding-bottom: spVw($fw-sp-clear); // 振り下ろしで靴が切れない余裕
-        // margin-top: spVw($fw-sp-mt);
+        // 高さ固定（画像ロード前後でレイアウトが跳ねない）
+        height: spVw($fw-sp-gif-w * $fw-gif-ratio);
+        margin-top: spVw($fw-sp-mt);
         margin-bottom: spVw($fw-sp-mb);
-        container-type: inline-size; // 入場位置を箱幅基準に（100cqw）
-        // CSS変数 → keyframes から参照
-        --fw-step: #{$fw-sp-step};
+        container-type: inline-size;
         --fw-cross: #{$fw-sp-cross};
-        --fw-swing: #{$fw-sp-stride};
-        --fw-lift: #{spVw($fw-sp-lift)};
-        --fw-nudge: #{spVw($fw-sp-nudge)};
-        --fw-tilt: #{$fw-sp-tilt};
+        isolation: isolate;
+        transform: translateZ(0);
 
         @include mq(pc) {
-            height: pcVw($fw-pc-view-h);
-            padding-bottom: pcVw($fw-pc-clear);
-            // margin-top: pcVw($fw-pc-mt);
+            height: pcVw($fw-pc-gif-w * $fw-gif-ratio);
+            margin-top: pcVw($fw-pc-mt);
             margin-bottom: pcVw($fw-pc-mb);
-            --fw-step: #{$fw-pc-step};
             --fw-cross: #{$fw-pc-cross};
-            --fw-swing: #{$fw-pc-stride};
-            --fw-lift: #{pcVw($fw-pc-lift)};
-            --fw-nudge: #{pcVw($fw-pc-nudge)};
-            --fw-tilt: #{$fw-pc-tilt};
         }
 
-        // 歩く人（横移動）※高さは見える箱に合わせる
+        @media (prefers-reduced-motion: reduce) {
+            .footer_walk_men {
+                animation: none;
+                left: 50%;
+                transform: translate3d(-50%, -50%, 0);
+            }
+        }
+
+        // 横移動のみ（他 transform を混ぜない）
         &_men {
             position: absolute;
-            top: 0;
+            top: 50%;
             left: 0;
-            width: spVw($fw-sp-shoe-w);
-            height: spVw($fw-sp-view-h);
+            width: spVw($fw-sp-gif-w);
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translate3d(0, -50%, 0);
             animation: footer-walk-move var(--fw-cross) linear infinite;
+            animation-play-state: paused;
 
             @include mq(pc) {
-                width: pcVw($fw-pc-shoe-w);
-                height: pcVw($fw-pc-view-h);
+                width: pcVw($fw-pc-gif-w);
+            }
+
+            img {
+                display: block;
+                width: 100%;
+                height: auto;
+                aspect-ratio: 800 / 275;
+                max-width: none;
+                pointer-events: none;
+                user-select: none;
+                // 画像レイヤーを親の移動から分離
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
             }
         }
 
-        // 脚（振り子）※leg-h で腕を確保し、下端を箱底に固定（上ははみ出してクリップ）
-        &_leg {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            display: flex;
-            align-items: flex-end;
-            width: 100%;
-            height: spVw($fw-sp-leg-h);
-            transform-origin: 50% 20%; // 支点＝脚の上から20%（半径≒leg-h×0.8）
-            // 等速に近い歩き（両端で急停止しない）
-            animation: footer-walk-leg var(--fw-step) cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-
-            @include mq(pc) {
-                height: pcVw($fw-pc-leg-h);
-            }
-
-            &.leg-1 {
-                animation-delay: calc(var(--fw-step) / -2); // 半周期ずらし（開始時も左右交互）
-            }
-        }
-
-        // 靴（background で画像）
-        &_shoe {
-            flex-shrink: 0;
-            width: spVw($fw-sp-shoe-w);
-            height: spVw($fw-sp-shoe-h);
-            background: url("../../assets/img/footer/shoes/shoes.png") center bottom / contain no-repeat;
-            // かかと寄りで回すとブレやすいので中央寄り
-            transform-origin: 50% 100%;
-            animation: footer-walk-shoe var(--fw-step) cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-
-            @include mq(pc) {
-                width: pcVw($fw-pc-shoe-w);
-                height: pcVw($fw-pc-shoe-h);
-            }
-
-            .leg-1 & {
-                animation-delay: calc(var(--fw-step) / -2);
+        &.is-active {
+            .footer_walk_men {
+                animation-play-state: running;
             }
         }
     }
 }
 
-// 箱の右端の外 → 左端の外（100vw だと初回入場がズレるので cqw = 親幅）
+// 左の外 → 右の外（到達後に左から再開）
 @keyframes footer-walk-move {
     from {
-        transform: translateX(100cqw);
+        transform: translate3d(-100%, -50%, 0);
     }
 
     to {
-        transform: translateX(-100%);
-    }
-}
-
-// 脚の振り子（振り角＝歩幅は --fw-swing ＝ $fw-*-stride）
-@keyframes footer-walk-leg {
-    0%,
-    100% {
-        transform: rotate(var(--fw-swing));
-    }
-
-    50% {
-        transform: rotate(calc(var(--fw-swing) * -1));
-    }
-}
-
-// 靴の足上げ（傾き・前後スライドは最小限にしてぐらつきを抑える）
-@keyframes footer-walk-shoe {
-    0%,
-    100% {
-        // 接地
-        transform: translateY(0) translateX(var(--fw-nudge)) rotate(calc(var(--fw-tilt) * -1));
-    }
-
-    25% {
-        // 振り上げ
-        transform: translateY(calc(var(--fw-lift) * -1)) translateX(0) rotate(0deg);
-    }
-
-    50% {
-        // 接地
-        transform: translateY(0) translateX(calc(var(--fw-nudge) * -1)) rotate(var(--fw-tilt));
-    }
-
-    75% {
-        // 振り上げ
-        transform: translateY(calc(var(--fw-lift) * -1)) translateX(0) rotate(0deg);
+        transform: translate3d(100cqw, -50%, 0);
     }
 }

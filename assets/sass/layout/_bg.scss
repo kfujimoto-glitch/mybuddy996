@@ -1,13 +1,10 @@
 @use "../global" as *;
 
-// html {
-//     scrollbar-gutter: stable;
-//     overflow-x: clip;
-//   }
-
 html {
   // iOS Safari: アドレスバー変動に強い高さ基準
   height: 100%;
+  //     scrollbar-gutter: stable;
+  //     overflow-x: clip;
 }
 
 body {
@@ -44,7 +41,7 @@ body {
 // Safari 26 は上端 4px 以内の fixed/sticky の background-color で上バー色を決める。
 // About 通過後は上端に sticky が無く、未設定だと黒フォールバックになる。
 // .bg 全体を position:fixed にすると上は直るが下バー透過が崩れる（実機で確認）。
-// 参考: Jリーグ / UNIQLO — 上端だけ fixed、background-color + noise でサンプリング。
+// 上端だけ fixed、background-color + noise でサンプリング。
 //
 // 【なぜこの数値か】
 // ・height: 52px … ステータスバー＋アドレスバー相当のガード帯（端末差の余裕）

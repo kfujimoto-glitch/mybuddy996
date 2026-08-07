@@ -11,17 +11,25 @@
     z-index: 200;
     background-color: transparent;
     background-image: none;
-    // 背景は即時切替（transition すると上に戻ったとき光って見える）
-    transition: padding 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    // 0=最上端 / 1=コンパクト完了（JSがスクロール量に合わせて更新）
+    --header-bg: 0;
 
-    // SP スクロール固定時（Figma 540:753 — 375×62）
-    &.is-compact {
-        padding: spCalc(20) spCalc(12);
+    // 背景は疑似要素でフェード（切替感をなくす）
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
         background-color: #eaeaea;
         background-image: url("../../assets/img/bg/noise.jpg");
         background-repeat: repeat;
         background-size: 200px 200px;
+        opacity: var(--header-bg);
     }
+
+    // SP スクロール固定時（Figma 540:753）
+    // padding / 背景は JS（--header-bg）と連動。is-compact は補助用
 
     @include mq(pc) {
         width: 100%;
@@ -29,7 +37,7 @@
         // padding: 40px 35px 0;
         padding: min(pcCalc(50), 50px) min(pcCalc(40), 40px) 0;
 
-        // スクロール固定時（Figma 406:981）
+        // スクロール固定時（Figma 406:981）— 最終値。途中は JS が補間
         &.is-compact {
             padding: min(pcCalc(50), 50px) min(pcCalc(40), 35px) min(pcCalc(44), 44px);
         }
@@ -49,7 +57,7 @@
         justify-content: space-between;
         align-items: center;
         // SP: 初期からコンパクト幅（Figma 540:753）
-        width: spCalc(62);
+        width: spCalc(74);
 
         @include mq(pc) {
             width: pcCalc(250);
@@ -62,7 +70,7 @@
         }
 
         &_nb {
-            width: ratio(36, 62);
+            width: ratio(40, 74);
 
             @include mq(pc) {
                 width: ratio(77, 250);
@@ -81,7 +89,7 @@
         }
 
         &_hm {
-            width: ratio(15, 62);
+            width: ratio(20, 74);
 
             @include mq(pc) {
                 width: ratio(143, 250);
@@ -122,7 +130,7 @@
         // top の % は親の「高さ」基準 → ratio(60, 349) だと意図どおりにならない
         // 横幅349基準でずらすなら margin-top（%が親の幅基準）を使う
         top: 0;
-        margin-top: ratio(50, 349);
+        margin-top: ratio(47, 349);
         left: 50%;
         transform: translate(-50%, 0%);
         @include mq(pc) {
@@ -141,17 +149,16 @@
         }
 
         // 固定時：ヘッダー内に収まるサイズ
+        // ※ SP は JS が width/top/margin/transform を毎フレーム補間する。
+        //   ここで CSS を書くと is-compact 切替時に競合してがたつくので PC のみ。
         .header.is-compact & {
-            // SP（Figma: 中央120px / 375 ≈ 32%）
-            width: spCalc(120);
-            margin-top: 0;
-            top: 50%;
-            transform: translate(-50%, -50%);
-
             @include mq(pc) {
                 // PC（Figma ≈178）
                 width: min(pcCalc(208), 208px);
                 max-width: 178px;
+                margin-top: 0;
+                top: 50%;
+                transform: translate(-50%, -50%);
             }
         }
 

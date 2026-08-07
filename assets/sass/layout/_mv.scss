@@ -17,6 +17,9 @@ $mv-slide-width: calc((100% - #{($mv-n - 1) * $mv-space}px) / #{$mv-n});
 // 垂直中央を揃える: bottom = 中央ライン / transform: translate(-50%, 50%)
 // 矢印下端 31 + 矢印高さ 12/2 = 37（従来の矢印位置を維持）
 $mv-controls-center-y: 37;
+$mv-caption-bottom: 71; // &_caption の bottom（タイトル下端）
+$mv-hit-title-gap: 2; // タイトルとヒット領域の隙間
+$mv-sp-arrow-h: 12; // 矢印画像の高さ目安（31×12）
 
 // ---------- ページャー調整（カンプpx / ここだけ変える） ----------
 //   横方向 → ratio(値, 877) … 親幅(=中央スライド幅 S) 基準の %
@@ -115,7 +118,7 @@ $mv-sp-controls-color: #2f2f31; // SPの矢印・ページャー色
         // カンプ基準: スライド 877×594 / キャプション幅 801 / bottom 71
         // 左右余白: (877 - 801) / 2 = 38
         //
-        // 方法A: width + 中央寄せ
+        // 方法: width + 中央寄せ
         //   left: 50%;
         //   bottom: ratio(71, 594);   // 71 / 594
         //   width: ratio(801, 877);   // 801 / 877 ≒ 91.33%
@@ -222,11 +225,14 @@ $mv-sp-controls-color: #2f2f31; // SPの矢印・ページャー色
         width: $mv-slide-width;
         gap: ratio(17, $mv-slide);
         transform: translate(-50%, 50%);
+        // ヒット領域の縦計算用（1cqw ≒ 中央スライド幅）
+        container-type: inline-size;
       }
     }
 
     &_prev,
     &_next {
+      position: relative;
       display: block;
       flex-shrink: 0;
       width: spVw($mv-sp-arrow-w); // 以前の ratio(30,335)×親335 と同じ実寸
@@ -239,6 +245,31 @@ $mv-sp-controls-color: #2f2f31; // SPの矢印・ページャー色
 
       @include mq(pc) {
         width: ratio(30, $mv-slide);
+      }
+
+      // 見た目はそのまま、ヒット領域だけ広げる
+      // 横: prev → 中央スライド左端 / next → 同量を右へ
+      // 縦: 下 → スライド下端 / 上 → title 直下まで
+      &::before {
+        content: "";
+        position: absolute;
+        // SP: コントロール帯の上下いっぱい（title は帯の上なので被らない）
+        top: 50%;
+        height: spVw($mv-sp-arrow-h + $mv-sp-controls-pad-y * 2);
+        width: math.percentage(math.div($mv-sp-arrow-left + $mv-sp-arrow-w, $mv-sp-arrow-w));
+        transform: translateY(-50%);
+
+        @include mq(pc) {
+          // ボタン中心(= controls center-y)基準
+          // 上: caption bottom(title下端) − gap まで
+          // 下: スライド下端(0) まで
+          $hit-up: $mv-caption-bottom - $mv-controls-center-y - $mv-hit-title-gap; // 32
+          $hit-down: $mv-controls-center-y; // 37
+          top: calc(50% - 100cqw * #{math.div($hit-up, $mv-slide)});
+          height: calc(100cqw * #{math.div($hit-up + $hit-down, $mv-slide)});
+          width: math.percentage(math.div($mv-caption-left + 30, 30));
+          transform: none;
+        }
       }
 
       img {
@@ -259,6 +290,18 @@ $mv-sp-controls-color: #2f2f31; // SPの矢印・ページャー色
 
       @include mq(pc) {
         margin-left: ratio($mv-caption-left, $mv-slide);
+      }
+
+      &::before {
+        right: 0;
+        left: auto;
+      }
+    }
+
+    &_next {
+      &::before {
+        left: 0;
+        right: auto;
       }
     }
 

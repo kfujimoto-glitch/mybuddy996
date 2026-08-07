@@ -2,7 +2,7 @@
 
 .shoes_slider {
     // ===== 調整箇所 =====
-    --shoes-slider-duration: 20s; // 大きいほどゆっくり
+    --shoes-slider-duration: 28s; // 大きいほどゆっくり（8枚セット）
     --shoes-slider-gap: #{spVw(24)};
     // ====================
 
@@ -11,7 +11,7 @@
     // margin-bottom: spVw(53);
 
     @include mq(pc) {
-        --shoes-slider-duration: 40s; // セット増分に合わせて調整
+        --shoes-slider-duration: 40s;
         --shoes-slider-gap: #{pcVw(40)};
         // margin-bottom: min(pcVw(107), 107px);
     }
@@ -25,8 +25,9 @@
     &_track {
         display: flex;
         width: max-content;
-        // -50% → 0 で左から右へ（複製リストでループ）
-        animation: shoes-slider-ltr var(--shoes-slider-duration) linear infinite;
+        will-change: transform;
+        // 4セット複製 → 1セット分（-25%）でループ
+        animation: shoes-slider-rtl var(--shoes-slider-duration) linear infinite;
     }
 
     &_list {
@@ -46,7 +47,9 @@
             height: auto;
         }
 
-        &01 {
+        // 01 / 05: 239×101
+        &01,
+        &05 {
             width: spVw(88);
 
             @include mq(pc) {
@@ -54,7 +57,9 @@
             }
         }
 
-        &02 {
+        // 02 / 06: 260×101
+        &02,
+        &06 {
             width: spVw(99);
 
             @include mq(pc) {
@@ -62,6 +67,7 @@
             }
         }
 
+        // 03: 98×138
         &03 {
             width: spVw(38);
 
@@ -70,6 +76,7 @@
             }
         }
 
+        // 04: 249×103
         &04 {
             width: spVw(95);
 
@@ -80,12 +87,13 @@
     }
 }
 
-@keyframes shoes-slider-ltr {
+@keyframes shoes-slider-rtl {
     from {
-        transform: translateX(-50%);
+        transform: translate3d(0, 0, 0);
     }
 
     to {
-        transform: translateX(0);
+        // リスト4本中の1本分
+        transform: translate3d(-25%, 0, 0);
     }
 }

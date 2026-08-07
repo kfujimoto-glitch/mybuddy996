@@ -1,0 +1,319 @@
+@use "../../global" as *;
+
+// ============================================================
+// SPメニュー（Figma 605:2 / 375×652）
+// ・カンプ数値は下の CSS 変数を変更するだけ
+// ・画面幅に追従するもの → spVw / spFont（375基準の vw）
+// ・親幅に対する比率 → ratio（%）
+// ・Safari 上下バー: 100dvh + safe-area + 開閉時スクロールロック（JS）
+// ============================================================
+
+.menu {
+  // ===== 調整箇所（Figma px → 変数） =====
+  // ※ menu_head_logos は _header.scss の .header_logo（SP）と同じ数値・構造
+  --menu-bg: #2f2f31;
+  --menu-pad-left: #{spVw(13)};         // header padding 左右 spCalc(13) と同期
+  --menu-pad-right: #{spVw(13)};        // header 右 padding と同期（ロゴ幅計算の基準を合わせる）
+  --menu-pad-top: #{spVw(19)};          // header padding-top spCalc(19) と同期
+  --menu-pad-bottom: #{spVw(18)};     // 下余白（コピー下）
+  --menu-head-h: #{spVw(19)};         // ヘッダー行の高さ目安
+  --menu-close-w: #{spVw(24.27)};     // 閉じる幅（Figma 605:27）
+  --menu-close-h: #{spVw(11.68)};     // 閉じる高さ（Figma 605:27・平たい ×）
+  // ロゴとの光学的な垂直中央ずれ補正（+で下 / -で上）
+  --menu-close-nudge-y: #{spVw(-1.5)};
+  --menu-nav-mt: #{spVw(62)};         // ヘッダー下〜ナビ（102−21−19）
+  --menu-nav-ml: #{spVw(29)};         // ナビ左（41−12）
+  --menu-nav-w: #{spVw(292)};         // ナビ幅
+  --menu-item-gap: #{spVw(21)};       // 項目間・下パディング
+  --menu-en-ja-gap: #{spVw(20)};      // 欧文画像〜和文
+  --menu-ja-size: #{spFont(10.31)};      // 和文サイズ
+  --menu-ja-lh: #{lh(26.4, 10.31)};
+  // 和文の光学中央補正（EN画像ごと / +で下 / -で上）
+  --menu-ja-nudge-top: #{spVw(0)};
+  --menu-ja-nudge-about: #{spVw(5)};
+  --menu-ja-nudge-article: #{spVw(4)};
+  --menu-ja-nudge-abc: #{spVw(2)};
+  --menu-brand-mt: #{spVw(84)};       // ナビ下〜ブランド（最低）
+  --menu-brand-ml: #{spVw(33)};       // ブランド左（45−12）
+  --menu-brand-w: #{spVw(266)};       // ブランドブロック幅
+  --menu-brand-gap: #{spVw(24)};      // NB行〜HM行
+  --menu-nb-info-w: #{spVw(79)};      // menu_info_nb
+  --menu-hm-info-w: #{spVw(110)};     // menu_info_hm
+  // ブランドロゴの光学中央補正（SNSとの見え方 / +で下 / -で上）
+  --menu-brand-nb-nudge-y: #{spVw(4)};
+  --menu-brand-hm-nudge-y: #{spVw(0)};
+  --menu-sns-w: #{spVw(131)};         // SNS 3つ合計幅
+  --menu-sns-item: #{spVw(37)};       // 各 SNS アイコン
+  --menu-copy-mt: #{spVw(21)};        // ブランド下〜コピー
+  --menu-copy-size: #{spFont(14)};
+  --menu-line: rgba(255, 255, 255, 0.85);
+  // =====================================
+
+  // PC では開かない想定（ボタン非表示 + JS）。保険で PC だけ消す
+  position: fixed;
+  inset: 0;
+  z-index: 2000; // header_mybuddy(1000) / blend(1200) より上
+  width: 100%;
+  // 100% + 100dvh: Safari アドレスバー伸縮で下端が欠けない
+  height: 100%;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--menu-bg);
+  // Safari 上端サンプリング用（暗色メニュー時のバー色）
+  color: #fff;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+
+  &.is-open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @include mq(pc) {
+    display: none !important;
+  }
+
+  // 中身：縦フレックスでフッタを下へ
+  &_inner {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    min-height: 100dvh;
+    padding-top: calc(var(--menu-pad-top) + env(safe-area-inset-top, 0px));
+    padding-right: calc(var(--menu-pad-right) + env(safe-area-inset-right, 0px));
+    padding-bottom: calc(var(--menu-pad-bottom) + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(var(--menu-pad-left) + env(safe-area-inset-left, 0px));
+  }
+
+  // ---------- ヘッダー（ロゴ + 閉じる） ----------
+  &_head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--menu-head-h);
+  }
+
+  &_head_logos {
+    // .header_logo と同じ: spCalc(74) + NB40/HM20（vw だとヘッダーより大きくなる）
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    width: spCalc(74);
+  }
+
+  &_head_nb {
+    width: ratio(40, 74);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &_head_hm {
+    width: ratio(20, 74);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &_close {
+    box-sizing: content-box; // padding でアイコンが潰れないようにする
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--menu-close-w);
+    height: var(--menu-close-h);
+    // タップ領域だけ広げる（見た目サイズは変数どおり）
+    padding: spVw(10) spVw(8);
+    margin: spVw(-10) spVw(-8);
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    // レイアウト中央のまま、見た目だけ上下ずらし
+    transform: translateY(var(--menu-close-nudge-y));
+
+    img {
+      display: block;
+      width: var(--menu-close-w);
+      height: var(--menu-close-h);
+      object-fit: contain;
+    }
+  }
+
+  // ---------- ナビ ----------
+  &_nav {
+    width: var(--menu-nav-w);
+    max-width: 100%;
+    margin-top: var(--menu-nav-mt);
+    margin-left: var(--menu-nav-ml);
+  }
+
+  &_nav_list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &_nav_item {
+    padding-bottom: var(--menu-item-gap);
+    border-bottom: 1px solid var(--menu-line);
+
+    & + & {
+      margin-top: var(--menu-item-gap);
+    }
+  }
+
+  &_nav_link {
+    display: flex;
+    align-items: center;
+    gap: var(--menu-en-ja-gap);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  // 欧文タイトル画像（SVG 実寸ベース）
+  &_nav_en {
+    display: block;
+    height: auto;
+    flex-shrink: 0;
+
+    &--top {
+      width: spVw(39);
+    }
+    &--about {
+      width: spVw(77);
+    }
+    &--article {
+      width: spVw(135);
+    }
+    &--abc {
+      width: spVw(145);
+    }
+  }
+
+  &_nav_ja {
+    @include font_dnp_m();
+    font-size: var(--menu-ja-size);
+    line-height: var(--menu-ja-lh);
+    letter-spacing: 0.02em;
+  }
+
+  // EN の視覚重心に合わせて和文だけ上下微調整（隣接セレクタ）
+  &_nav_en--top + &_nav_ja {
+    transform: translateY(var(--menu-ja-nudge-top));
+  }
+  &_nav_en--about + &_nav_ja {
+    transform: translateY(var(--menu-ja-nudge-about));
+  }
+  &_nav_en--article + &_nav_ja {
+    transform: translateY(var(--menu-ja-nudge-article));
+  }
+  &_nav_en--abc + &_nav_ja {
+    transform: translateY(var(--menu-ja-nudge-abc));
+  }
+
+  // ---------- フッタ（ブランド + SNS + コピー） ----------
+  &_foot {
+    width: var(--menu-brand-w);
+    max-width: 100%;
+    margin-top: auto; // 余白は下へ寄せる（短い画面でも崩れにくい）
+    margin-left: var(--menu-brand-ml);
+    padding-top: var(--menu-brand-mt);
+  }
+
+  &_brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    & + & {
+      margin-top: var(--menu-brand-gap);
+    }
+  }
+
+  &_brand_logo {
+    flex-shrink: 0;
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    &--nb {
+      width: var(--menu-hm-info-w);
+      transform: translateY(var(--menu-brand-nb-nudge-y));
+
+      img {
+        width: var(--menu-nb-info-w);
+        margin: 0 auto;
+      }
+    }
+    &--hm {
+      width: var(--menu-hm-info-w);
+      transform: translateY(var(--menu-brand-hm-nudge-y));
+    }
+  }
+
+  &_sns {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: var(--menu-sns-w);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &_sns_item {
+    width: var(--menu-sns-item);
+  }
+
+  &_sns_link {
+    display: block;
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &_copy {
+    @include font_avenir_m();
+    margin: var(--menu-copy-mt) 0 0;
+    font-size: var(--menu-copy-size);
+    line-height: 1.4;
+    text-align: center;
+    color: #fff;
+  }
+}
+
+// メニュー開閉時：背景スクロール止め（iOS は position:fixed が安定）
+body.is-menu-open {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  overflow: hidden;
+
+  // メニュー背面にロゴが透けないように隠す
+  .header_mybuddy,
+  .header_mybuddy_blend {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}

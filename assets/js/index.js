@@ -1,55 +1,3 @@
-// document.addEventListener("DOMContentLoaded", function () {
-//   var mvSlider = document.querySelector(".mv_slider");
-//   if (!mvSlider) return;
-
-//   var BP_PC = 920; // Sassの pc と同じ
-
-//   function isPc() {
-//     return window.innerWidth >= BP_PC;
-//   }
-
-//   // pcVw相当（カンプ1440基準）
-//   function pcVw(value) {
-//     return (value / 1440) * 100 + "vw";
-//   }
-
-//   // SwiperのspaceBetweenはpx数値のみ受け取るため換算
-//   function pcVwToPx(value) {
-//     return (window.innerWidth * value) / 1440;
-//   }
-
-//   // PC: 中央幅（vw） / SP: 1枚（100%）
-//   function setSlideWidth() {
-//     mvSlider.querySelectorAll(".mv_slider_item").forEach(function (slide) {
-//       slide.style.width = isPc() ? pcVw(877) : "100%"; // 877 / 1440 * 100vw
-//     });
-//   }
-
-//   setSlideWidth();
-
-//   // PCは従来どおり / SPだけ1枚
-//   var swiper = new Swiper(".mv_slider", {
-//     loop: true,
-//     speed: 1200,
-//     slidesPerView: isPc() ? "auto" : 1,
-//     spaceBetween: isPc() ? pcVwToPx(23) : 0, // gap = pcVw(23)
-//     centeredSlides: isPc(),
-//     autoplay: {
-//       delay: 3000,
-//       disableOnInteraction: false,
-//     },
-//   });
-
-//   window.addEventListener("resize", function () {
-//     setSlideWidth();
-//     swiper.params.slidesPerView = isPc() ? "auto" : 1;
-//     swiper.params.spaceBetween = isPc() ? pcVwToPx(23) : 0;
-//     swiper.params.centeredSlides = isPc();
-//     swiper.update();
-//   });
-// });
-
-
 // ===== MVスライダー =====
 (function () {
   // PCカンプ数値（ここを変える）
@@ -190,6 +138,13 @@
       return 1 - Math.pow(1 - t, 3);
     }
 
+    // SP用: 往復とも緩やか（戻りで急に広がらない）
+    function easeInOutCubic(t) {
+      return t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
     // CSS の min(pcCalc(n), n px) と同じ実寸
     function campToPx(value) {
       return Math.min((value / CAMP) * window.innerWidth, value);
@@ -236,17 +191,34 @@
       blendLogo.style.transform = "none";
     }
 
-    // SP: is-compact はスクロール位置と同期（遅延解除だと幅がガクつく）
-    function setSpCompact(scrollY) {
-      header.classList.toggle("is-compact", scrollY > 0);
+    // SP/PC: 背景は透過させず ON/OFF。padding・ロゴは連続補間
+    function setCompact(progress) {
+      // 半透明フェードなし（0 or 1）
+      header.style.setProperty("--header-bg", progress > 0 ? "1" : "0");
+      // ブレンド停止など用。ほぼ縮みきってから付与
+      header.classList.toggle("is-compact", progress > 0.85);
+    }
+
+    function applyHeaderPadding(t) {
+      if (window.innerWidth < BP_PC) {
+        // SP: paddingはCSSのまま固定（補間するとheader_logoが%幅でがたつく）
+        header.style.padding = "";
+        return;
+      }
+      // PC: top 50固定、左右 40→35、下 0→44（現行カンプ値）
+      var top = campToPx(50);
+      var side = lerp(campToPx(40), Math.min(campToPx(40), 35), t);
+      var bottom = lerp(0, Math.min(campToPx(44), 44), t);
+      header.style.padding = top + "px " + side + "px " + bottom + "px";
     }
 
     // SP用の定数（Figma 540:753: 375×62）
     var SP_BASE = 375;
     var SP_WIDTH_LARGE = 319;   // spCalc(319) 相当
     var SP_WIDTH_SMALL = 120;   // コンパクト時（Figma中央≈120）
-    var SP_MARGIN_TOP_RATIO = 50 / 349;
-    var SP_SCROLL_RANGE = 180;
+    var SP_MARGIN_TOP_RATIO = 47 / 349;
+    // 大きいほど縮小〜復帰がゆっくり（指スクロールに対する進行を抑える）
+    var SP_SCROLL_RANGE = 700;
 
     function spToPx(v) {
       return (v / SP_BASE) * Math.min(window.innerWidth, SP_BASE);
@@ -256,9 +228,9 @@
       scrollY = normalizeY(scrollY);
 
       if (window.innerWidth < BP_PC) {
-        // SP: スクロール連動でロゴ縮小
+        // SP: スクロール連動でロゴ縮小（往復とも緩やか）
         var sp = Math.min(Math.max(scrollY / SP_SCROLL_RANGE, 0), 1);
-        var st = easeOutCubic(sp);
+        var st = easeInOutCubic(sp);
 
         var sw = lerp(spToPx(SP_WIDTH_LARGE), spToPx(SP_WIDTH_SMALL), st);
         logo.style.width = sw + "px";
@@ -267,7 +239,8 @@
         logo.style.marginTop = lerp(SP_MARGIN_TOP_RATIO * spToPx(349), 0, st) + "px";
         logo.style.transform = "translate(-50%, " + lerp(0, -50, st) + "%)";
 
-        setSpCompact(scrollY);
+        applyHeaderPadding(st);
+        setCompact(sp);
         syncBlendLogo();
         return;
       }
@@ -282,8 +255,9 @@
       logo.style.marginTop = lerp(campToPx(MARGIN_TOP_LARGE), 0, t) + "px";
       logo.style.transform = "translate(-50%, " + lerp(0, -50, t) + "%)";
 
-      // ほぼ縮みきったらヘッダー背景・padding を切り替え
-      header.classList.toggle("is-compact", progress > 0.85);
+      // ヘッダー背景・padding もロゴと同じ進行で連続変化（切替感をなくす）
+      applyHeaderPadding(t);
+      setCompact(progress);
       syncBlendLogo();
     }
 
@@ -319,7 +293,16 @@
 
     function tick() {
       var current = normalizeY(window.scrollY);
-      // 慣性を少し持たせて広がりをなめらかに（参考サイト同様）
+
+      // SP: タッチのネイティブスクロールに直接追従（慣性補間すると戻り時にがたつく）
+      if (window.innerWidth < BP_PC) {
+        smoothScrollY = current;
+        apply(current);
+        ticking = false;
+        return;
+      }
+
+      // PC: 慣性を少し持たせて広がりをなめらかに
       smoothScrollY = lerp(smoothScrollY, current, 0.12);
       apply(smoothScrollY);
 
@@ -338,8 +321,17 @@
       }
     }
 
+    // SP はアドレスバー出し入れで height だけ変わる resize が頻発 → 無視
+    var lastInnerWidth = window.innerWidth;
+    function onResize() {
+      var w = window.innerWidth;
+      if (w === lastInnerWidth && w < BP_PC) return;
+      lastInnerWidth = w;
+      syncStyles();
+    }
+
     onScroll(onHeaderScroll);
-    window.addEventListener("resize", syncStyles);
+    window.addEventListener("resize", onResize);
     window.addEventListener("load", syncHardOnLoad);
     window.addEventListener("pageshow", function (e) {
       // bfcache 復帰では位置を維持。通常ロード時だけ先頭へ
@@ -355,9 +347,12 @@
   // ----- スムーズスクロール -----
   // 小さいほどゆっくり / 大きいほど速い（目安 0.05〜0.2）
   // ※ SP/タッチはネイティブスクロールを使う（wheel 劫持は PC のみ）
+  // ※ header_mybuddy のおさまりは上の IIFE のみ。ここはページ位置だけ制御する
   (function () {
     var EASE = 0.08; // ホイールの速さ
-    var ANCHOR_EASE = 0.04; // アンカーリンクの速さ
+    var ANCHOR_EASE = 0.04; // アンカー（PC）
+    var ANCHOR_EASE_SP = 0.12; // アンカー（SP・大きいほど速い）
+    var BP_PC = 920;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     var current = window.scrollY;
@@ -371,7 +366,19 @@
       return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
     }
 
+    function readY() {
+      return window.scrollY || window.pageYOffset || 0;
+    }
+
+    // アンカーアニメだけ中断（ロゴ用の lerp / SP_SCROLL_RANGE には触れない）
+    function stopAnchorScroll() {
+      if (!running) return;
+      running = false;
+      current = target = readY();
+    }
+
     function animate() {
+      if (!running) return;
       current += (target - current) * ease;
       window.scrollTo(0, current);
       if (Math.abs(target - current) > 0.5) {
@@ -385,6 +392,9 @@
 
     function scrollToY(y, nextEase) {
       ease = nextEase != null ? nextEase : EASE;
+      if (!running) {
+        current = readY();
+      }
       target = Math.max(0, Math.min(maxScroll(), y));
       if (!running) {
         running = true;
@@ -405,6 +415,15 @@
       );
     }
 
+    // SP: 指で動かしたらアンカー自動スクロールだけ止めて、以降はネイティブ操作可能に
+    window.addEventListener(
+      "touchmove",
+      function () {
+        stopAnchorScroll();
+      },
+      { passive: true }
+    );
+
     // アンカーリンク（#about / #article など）— SP/PC 共通
     document.addEventListener("click", function (e) {
       var a = e.target.closest('a[href^="#"]');
@@ -421,13 +440,20 @@
       // sticky ヘッダー分を引かないと、目標位置より少し下（行き過ぎ）に見える
       var header = document.querySelector(".header");
       var headerH = header ? header.offsetHeight : 0;
-      var y = el.getBoundingClientRect().top + window.scrollY - headerH;
-      scrollToY(y, ANCHOR_EASE);
+      var y = el.getBoundingClientRect().top + readY() - headerH;
+      var anchorEase = window.innerWidth < BP_PC ? ANCHOR_EASE_SP : ANCHOR_EASE;
+      scrollToY(y, anchorEase);
     });
 
-    // 手動スクロール時は位置を同期
+    // 手動スクロール時は位置を同期 / 実位置とアニメが大きくズレたら中断
     onScroll(function (y) {
-      if (!running) current = target = y;
+      if (!running) {
+        current = target = y;
+        return;
+      }
+      if (Math.abs(y - current) > 20) {
+        stopAnchorScroll();
+      }
     });
   })();
 
@@ -459,6 +485,61 @@
     window.addEventListener("resize", update);
     update();
   })();
+})();
+
+// ===== About：背景動画（ミュート自動再生・ループ / SP対策） =====
+(function () {
+  var video = document.querySelector(".about_video");
+  if (!video) return;
+
+  function prepare() {
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.removeAttribute("controls");
+  }
+
+  function tryPlay() {
+    prepare();
+    if (!video.paused) return;
+    var p = video.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(function () {
+        // 自動再生が弾かれても次の可視時・操作時に再試行
+      });
+    }
+  }
+
+  prepare();
+  tryPlay();
+  video.addEventListener("loadeddata", tryPlay);
+  video.addEventListener("canplay", tryPlay);
+
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) tryPlay();
+        });
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(video);
+  }
+
+  // 初回ジェスチャー後に再開（iOS で autoplay が弾かれた場合）
+  ["touchstart", "click", "scroll"].forEach(function (type) {
+    window.addEventListener(
+      type,
+      function once() {
+        tryPlay();
+      },
+      { passive: true, once: true }
+    );
+  });
 })();
 
 // ===== About：Movie Play → YouTube モーダル =====
@@ -494,6 +575,68 @@
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && !modal.hidden) closeModal();
+  });
+})();
+
+// ===== SPメニュー開閉（Figma 605:2） =====
+(function () {
+  var BP_PC = 920;
+  var menu = document.getElementById("sp_menu");
+  var openBtn = document.querySelector(".header_menu_btn");
+  var closeBtn = menu && menu.querySelector(".menu_close");
+  if (!menu || !openBtn || !closeBtn) return;
+
+  var scrollY = 0;
+
+  function isSp() {
+    return window.innerWidth < BP_PC;
+  }
+
+  function openMenu() {
+    if (!isSp()) return;
+    scrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.top = -scrollY + "px";
+    document.body.classList.add("is-menu-open");
+    menu.classList.add("is-open");
+    menu.setAttribute("aria-hidden", "false");
+    openBtn.setAttribute("aria-expanded", "true");
+    closeBtn.focus();
+  }
+
+  function closeMenu() {
+    if (!menu.classList.contains("is-open")) return;
+    menu.classList.remove("is-open");
+    menu.setAttribute("aria-hidden", "true");
+    openBtn.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("is-menu-open");
+    document.body.style.top = "";
+    window.scrollTo(0, scrollY);
+  }
+
+  openBtn.addEventListener("click", openMenu);
+  closeBtn.addEventListener("click", closeMenu);
+
+  // ページ内リンク：先に閉じてから既存のスムーススクロールへ
+  menu.querySelectorAll(".menu_nav_link").forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      closeMenu();
+      // Top はヘッダー高さ引きで負になるため、明示的に先頭へ
+      if (link.hasAttribute("data-menu-top")) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.scrollTo(0, 0);
+      }
+    });
+  });
+
+  // Esc で閉じる
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  // PC幅になったら強制クローズ（レイアウト崩れ防止）
+  window.addEventListener("resize", function () {
+    if (!isSp()) closeMenu();
   });
 })();
 
@@ -592,3 +735,114 @@
     staggerObserver.observe(list);
   });
 })();
+
+// ===== Footer walk：official が見えはじめたら歩行開始 =====
+(function () {
+  var walk = document.querySelector(".footer_walk");
+  var men = walk && walk.querySelector(".footer_walk_men");
+  var official = document.querySelector(".official");
+  if (!walk || !official) return;
+
+  var active = false;
+
+  function restartWalk() {
+    if (!men) return;
+    men.style.animation = "none";
+    void men.offsetWidth;
+    men.style.animation = "";
+  }
+
+  function setActive(next) {
+    if (next === active) return;
+    if (next) {
+      restartWalk();
+      walk.classList.add("is-active");
+    } else {
+      walk.classList.remove("is-active");
+      restartWalk();
+    }
+    active = next;
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    setActive(true);
+    return;
+  }
+
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          setActive(true);
+          return;
+        }
+
+        // 上に戻って official がまだ画面下にある場合だけ停止
+        var rect = official.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (rect.top > vh) {
+          setActive(false);
+        }
+      });
+    },
+    {
+      root: null,
+      threshold: 0,
+      rootMargin: "0px",
+    }
+  );
+
+  observer.observe(official);
+})();
+
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   var mvSlider = document.querySelector(".mv_slider");
+//   if (!mvSlider) return;
+
+//   var BP_PC = 920; // Sassの pc と同じ
+
+//   function isPc() {
+//     return window.innerWidth >= BP_PC;
+//   }
+
+//   // pcVw相当（カンプ1440基準）
+//   function pcVw(value) {
+//     return (value / 1440) * 100 + "vw";
+//   }
+
+//   // SwiperのspaceBetweenはpx数値のみ受け取るため換算
+//   function pcVwToPx(value) {
+//     return (window.innerWidth * value) / 1440;
+//   }
+
+//   // PC: 中央幅（vw） / SP: 1枚（100%）
+//   function setSlideWidth() {
+//     mvSlider.querySelectorAll(".mv_slider_item").forEach(function (slide) {
+//       slide.style.width = isPc() ? pcVw(877) : "100%"; // 877 / 1440 * 100vw
+//     });
+//   }
+
+//   setSlideWidth();
+
+//   // PCは従来どおり / SPだけ1枚
+//   var swiper = new Swiper(".mv_slider", {
+//     loop: true,
+//     speed: 1200,
+//     slidesPerView: isPc() ? "auto" : 1,
+//     spaceBetween: isPc() ? pcVwToPx(23) : 0, // gap = pcVw(23)
+//     centeredSlides: isPc(),
+//     autoplay: {
+//       delay: 3000,
+//       disableOnInteraction: false,
+//     },
+//   });
+
+//   window.addEventListener("resize", function () {
+//     setSlideWidth();
+//     swiper.params.slidesPerView = isPc() ? "auto" : 1;
+//     swiper.params.spaceBetween = isPc() ? pcVwToPx(23) : 0;
+//     swiper.params.centeredSlides = isPc();
+//     swiper.update();
+//   });
+// });

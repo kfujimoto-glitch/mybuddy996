@@ -2,10 +2,10 @@
 
 .official {
     width: spCalc(356);
-    margin: 0 auto spCalc(74);
+    margin: 0 auto spCalc(60);
     background: #2F2F31;
     border-radius: spVw(16);
-    padding: spCalc(69) 0 spCalc(58);
+    padding: spCalc(43) 0 spCalc(40);
 
     @include mq(pc) {
         width: pcCalc(1360);     
@@ -15,13 +15,51 @@
         margin: 0 auto min(pcCalc(107), 107px); 
     }
 
+    // 全体リンク（nikoand allitem 風ホバー）
+    &_links {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+
+        @include hover() {
+            // 左括弧 ← / 右括弧 →
+            .official_btn_left {
+                transform: translateX(spVw(-4));
+                @include mq(pc) {
+                    transform: translateX(min(pcVw(-5), -5px));
+                }
+            }
+            .official_btn_right {
+                transform: translateX(spVw(4));
+                @include mq(pc) {
+                    transform: translateX(min(pcVw(5), 5px));
+                }
+            }
+            // 矢印（右へ）
+            .official_btn_arrow {
+                transform: translateX(spVw(4));
+                @include mq(pc) {
+                    transform: translateX(min(pcVw(5), 5px));
+                }
+            }
+            // 文字間隔（参考 allitem 同様 / font-size は変えない）
+            .official_btn_label {
+                letter-spacing: 0.02em;
+            }
+            // バナー拡大
+            .official_bnr_link_img {
+                transform: scale(1.06);
+            }
+        }
+    }
+
     &_inner {
-        width: ratio(302, 356);
+        width: ratio(314, 356);
         max-width: 100%;
         margin: 0 auto;
         @include mq(pc) {
-            width: ratio(1145, 1360);
-            max-width: 1145px;                    
+            width: ratio(1120, 1360);
+            max-width: 1120px;                    
         }
     }
 
@@ -35,19 +73,19 @@
 
     &_content {
         @include mq(pc) {
-            width: ratio(332, 1145);            
+            width: ratio(332, 1120);            
         }
     }
 
     &_heading {
         @include mq(pc) {
-            margin-bottom: ratio(28,332);            
+            margin-bottom: ratio(30,332);            
         }
     }
 
     &_ttl_en {
-        width: ratio(200, 302);
-        margin-bottom: ratio(15, 302);
+        width: ratio(200, 314);
+        margin-bottom: ratio(15, 314);
 
         img {
             width: 100%;
@@ -56,7 +94,7 @@
         }
 
         @include mq(pc) {
-            width: ratio(266, 332);    
+            width: ratio(256, 332);    
             margin-bottom: ratio(7, 332);
         }
     }
@@ -68,7 +106,7 @@
         @include font_dnp_b();
 
         line-height: 1;
-        margin-bottom: ratio(24, 302);
+        margin-bottom: ratio(33, 314);
 
         @include mq(pc) {
             font-size: min(pcFont(16), 16px);
@@ -82,25 +120,42 @@
         color: #fff;
         @include font_dnp_m();
         line-height: lh(28, 13);
-        margin-bottom: ratio(28, 302);
+        margin-bottom: ratio(29, 314);
+        letter-spacing: 0;
         @include mq(pc) {
             font-size: min(pcFont(14), 14px);
             line-height: ratio(28, 14);
-            margin-bottom: ratio(20, 332);
+            margin-bottom: ratio(25, 332);
         }
     }
 
     &_bnr {
-        margin-bottom: ratio(24, 302);
+        overflow: hidden; // 拡大時のはみ出しをクリップ
+        margin-bottom: ratio(20, 314);
+        border-radius: spVw(10);
+        line-height: 0; // img 下の隙間防止
+        transform: translateZ(0); // iOS: 角丸クリップの端のにじみ対策
+        isolation: isolate;
+        -webkit-mask-image: -webkit-radial-gradient(white, black); // Safari 角丸クリップ補助
         @include mq(pc) {
-            width: ratio(705, 1145);
+            width: ratio(642, 1120);
             margin-bottom: 0;
+            border-radius: pcVw(14);
         }
     }
     &_bnr_link_img {
-        border-radius: spVw(10);
+        display: block;
+        width: 100%;
+        height: auto;
+        // 角丸は親 .official_bnr のみ（親子両方だと iOS で下端に隙間・光が出やすい）
+        border-radius: 0;
+        vertical-align: bottom;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transition: transform 0.4s ease;
+        transform-origin: center center;
         @include mq(pc) {
-            border-radius: pcVw(14);
+            border-radius: 0;
         }
     }
 
@@ -113,27 +168,19 @@
 
     &_btn {
         display: inline-flex;
+        flex-wrap: nowrap;
         color: #fff;
         align-items: center;
-        width: ratio(148, 302);
+        width: ratio(148, 332);
         @include mq(pc) {
             width: ratio(148, 332);
         }
 
-        // ホバーで矢印が右へ
-        @include hover() {
-            .official_btn_arrow {
-                transform: translateX(spVw(4));
-
-                @include mq(pc) {
-                    transform: translateX(min(pcVw(6), 6px));
-                }
-            }
-        }
-
         &_left {
+            display: block;
             width: ratio(8, 148);
             margin-right: ratio(13, 148);
+            transition: transform 0.4s ease;
             @include mq(pc) {
                 width: ratio(8, 148);
                 margin-right: ratio(13, 148);
@@ -141,8 +188,10 @@
         }
 
         &_right {
+            display: block;
             width: ratio(8, 148);
             margin-right: 0;
+            transition: transform 0.4s ease;
             @include mq(pc) {
                 width: ratio(8, 148);
                 margin-right: 0;
@@ -155,6 +204,8 @@
             font-size: spFont(12);
             letter-spacing: 0em;
             margin-right: ratio(6, 148);
+            white-space: nowrap;
+            transition: letter-spacing 0.4s ease;
             @include mq(pc) {                
                 font-size: min(pcFont(12), 12px);
                 margin-right: ratio(6, 148);
@@ -165,7 +216,7 @@
             display: block;
             width: ratio(10, 148);
             margin-right: ratio(13, 148);
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
             @include mq(pc) {
                 width: ratio(10, 148);
                 margin-right: ratio(13, 148);

@@ -46,11 +46,12 @@ $about-start-vs-mv: math.div($about-start-w-camp, $about-mv-slide);
     // ・pin: top: 5px / height: calc(100dvh - 10px)
     //   → 上下各 5px 空け。サンプリング圏（下端約 3px）より余裕を持たせた実機値。
     //   → 100vh に戻すと下バー透過が崩れる（実機確認）。
-    // ・_visual / _grad: top・bottom: 8px
+    // ・_visual: top・bottom: 8px
     //   → pin の 5px に加え、中の黒だけさらに離す。
     //   → top:8px … About 中に黒が上バー（4px 圏）へ乗るのを抑える。
     //   → bottom:8px … ゆっくり抜けるとき下バーに黒が乗るのを抑える。
     //   → 8px は理論上の 3px より余裕を持たせた実機調整値（厳密な計算式ではない）。
+    // ・_grad: inset 0（_visual 内で動画全面）。端あけは _visual に任せる。
     // ・_body: bottom: 8px … pin 下端の透明帯をテキストで覆わない。
     // ・拡大: cover + scale（--scale-start → $about-scale-end=1）。Safari 対策とは別。
     //
@@ -124,11 +125,13 @@ $about-start-vs-mv: math.div($about-start-w-camp, $about-mv-slide);
         width: 100%;
         height: 100%;
         object-fit: cover;
+        pointer-events: none; // SPのネイティブ再生UI操作を防ぐ
     }
 
     // 塗り #000 / 外見不透明度 60% / ブレンドモード乗算（Figma準拠）
     // スクロールで最大幅（--p → 1）になったときにフェードイン
-    // SP: _visual と同じ上下 8px（グラデが端まで届くと黒がバーに乗る）
+    // ※ _grad は _visual の内側。Safari 端あけは _visual / _pin 側のみ。
+    //   ここで上下 inset すると動画の端にグラデが届かなくなる。
     &_grad {
         position: absolute;
         inset: 0;
@@ -136,40 +139,8 @@ $about-start-vs-mv: math.div($about-start-w-camp, $about-mv-slide);
         background: #000;
         opacity: calc(0.6 * var(--p)); // 開始 0 → 最大幅時 0.6
         mix-blend-mode: multiply;
-
-        @include mq(sp) {
-            // Safari: _visual と同じ端あけ（上ブロックコメント参照）
-            top: 8px;
-            right: 0;
-            bottom: 8px;
-            left: 0;
-        }
     }
 
-    // NB ロゴ（透かし）※非表示のためコメントアウト
-    // &_nb {
-    //     position: absolute;
-    //     left: 50%;
-    //     top: 42%;
-    //     width: spVw(220);
-    //     transform: translate(-50%, -50%);
-    //     opacity: calc(0.12 + var(--p) * 0.18);
-    //     pointer-events: none;
-    //
-    //     @include mq(pc) {
-    //         top: 38%;
-    //         width: pcVw(420);
-    //         max-width: 420px;
-    //     }
-    //
-    //     img {
-    //         display: block;
-    //         width: 100%;
-    //         height: auto;
-    //         // 黒ロゴ → 白に反転
-    //         filter: brightness(0) invert(1);
-    //     }
-    // }
 
     // ---------- テキスト・ボタン（後半でフェードイン） ----------
     // 高さは中身なり。下端に置くので justify-content は不要
