@@ -1681,6 +1681,7 @@ body {
 @media screen and (min-width: 920px) {
   .mv_slider_item {
     border-radius: 1.3888888889vw;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
   }
 }
 .mv_slider_media {
@@ -1833,7 +1834,7 @@ body {
 @media screen and (min-width: 920px) {
   .mv_slider_prev::before, .mv_slider_next::before {
     top: calc(50% - 100cqw * 0.0364880274);
-    height: calc(100cqw * 0.078677308);
+    height: calc(100cqw * 0.078677309);
     width: 220%;
     transform: none;
   }

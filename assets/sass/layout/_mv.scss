@@ -77,6 +77,7 @@ $mv-sp-controls-color: #2f2f31; // SPの矢印・ページャー色
 
       @include mq(pc) {
         border-radius: pcVw(20);
+        -webkit-mask-image: -webkit-radial-gradient(white, black);
       }
 
     }

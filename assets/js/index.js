@@ -4,6 +4,7 @@
   var MV_CAMP_WIDTH = 1440; // Swiper全体の幅
   var MV_SLIDE_WIDTH = 877; // スライド幅
   var MV_SPACE = 23; // スライド間余白
+  var LOOP_BUFFER_MIN = 5; // 5枚未満は loop 用に1セット複製
 
   // （全体幅 ＋ 余白）÷（スライド幅 ＋ 余白）
   // 例: (1440 + 23) / (877 + 23) ≒ 1.6256
@@ -13,7 +14,67 @@
   // 1スライドの表示時間（ページャーのリング一周と同期）
   var MV_AUTOPLAY_DELAY = 3000;
 
-  new Swiper(".mv_slider", {
+  var mvSliderEl = document.querySelector(".mv_slider");
+  if (!mvSliderEl) return;
+
+  var wrapper = mvSliderEl.querySelector(".swiper-wrapper");
+  if (!wrapper) return;
+
+  var slides = Array.prototype.slice.call(wrapper.children);
+  var uniqueCount = slides.length;
+  var useLoopBuffer = uniqueCount > 0 && uniqueCount < LOOP_BUFFER_MIN;
+
+  // 5枚未満: Swiper 初期化前に1セット複製（loop の左右見切れを安定させる）
+  if (useLoopBuffer) {
+    slides.forEach(function (slide) {
+      wrapper.appendChild(slide.cloneNode(true));
+    });
+  }
+
+  function renderPagerBullet(index, className) {
+    return (
+      '<button type="button" class="' +
+      className +
+      '" data-mv-pager-index="' +
+      index +
+      '" aria-label="スライド' +
+      (index + 1) +
+      'へ">' +
+      '<svg class="mv_slider_pager_ring" viewBox="0 0 100 100" aria-hidden="true">' +
+      '<circle class="mv_slider_pager_ring_bar" cx="50" cy="50" r="47" pathLength="100" />' +
+      "</svg>" +
+      "<span>" +
+      (index + 1) +
+      "</span></button>"
+    );
+  }
+
+  var paginationConfig = useLoopBuffer
+    ? {
+        el: ".mv_slider_pager",
+        type: "custom",
+        renderCustom: function (swiper) {
+          var active = swiper.realIndex % uniqueCount;
+          var html = "";
+          for (var i = 0; i < uniqueCount; i++) {
+            html += renderPagerBullet(
+              i,
+              "swiper-pagination-bullet" +
+                (i === active ? " swiper-pagination-bullet-active" : "")
+            );
+          }
+          return html;
+        },
+      }
+    : {
+        el: ".mv_slider_pager",
+        clickable: true,
+        renderBullet: function (index, className) {
+          return renderPagerBullet(index, className);
+        },
+      };
+
+  var swiper = new Swiper(".mv_slider", {
     // SP
     slidesPerView: 1,
     spaceBetween: 0,
@@ -29,25 +90,7 @@
       nextEl: ".mv_slider_next",
     },
     // ページャー（中央スライド右下）
-    pagination: {
-      el: ".mv_slider_pager",
-      clickable: true,
-      renderBullet: function (index, className) {
-        return (
-          '<button type="button" class="' +
-          className +
-          '" aria-label="スライド' +
-          (index + 1) +
-          'へ">' +
-          '<svg class="mv_slider_pager_ring" viewBox="0 0 100 100" aria-hidden="true">' +
-          '<circle class="mv_slider_pager_ring_bar" cx="50" cy="50" r="47" pathLength="100" />' +
-          "</svg>" +
-          "<span>" +
-          (index + 1) +
-          "</span></button>"
-        );
-      },
-    },
+    pagination: paginationConfig,
     breakpoints: {
       // PC（カンプ計算結果を反映）
       920: {
@@ -58,10 +101,60 @@
     },
   });
 
-  // ページャーのリング一周時間を autoplay と同期
-  var mvPagerEl = document.querySelector(".mv_slider_pager");
-  if (mvPagerEl) {
-    mvPagerEl.style.setProperty("--mv-pager-duration", MV_AUTOPLAY_DELAY + "ms");
+  // 複製時: カスタムページャーのクリック（ユニーク枚数分のドット）
+  if (useLoopBuffer) {
+    var mvPagerEl = document.querySelector(".mv_slider_pager");
+    if (mvPagerEl) {
+      mvPagerEl.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-mv-pager-index]");
+        if (!btn) return;
+        var index = parseInt(btn.getAttribute("data-mv-pager-index"), 10);
+        if (!isNaN(index)) swiper.slideToLoop(index);
+      });
+    }
+  }
+
+  // リング完了で遷移（autoplay はフォールバック）
+  // renderCustom が DOM を書き換えるので paginationUpdate 後に要素を取り直す
+  var ringHandler = null;
+  var currentRing = null;
+
+  function cleanupRing() {
+    if (currentRing && ringHandler) {
+      currentRing.removeEventListener("animationend", ringHandler);
+    }
+    currentRing = null;
+    ringHandler = null;
+  }
+
+  function watchRing() {
+    cleanupRing();
+    requestAnimationFrame(function () {
+      var ring = mvSliderEl.querySelector(
+        ".swiper-pagination-bullet-active .mv_slider_pager_ring_bar"
+      );
+      if (!ring) return;
+      currentRing = ring;
+      ringHandler = function () {
+        cleanupRing();
+        swiper.autoplay.stop();
+        swiper.slideNext();
+      };
+      ring.addEventListener("animationend", ringHandler);
+    });
+  }
+
+  swiper.on("paginationUpdate", watchRing);
+  swiper.on("slideChangeTransitionEnd", function () {
+    swiper.autoplay.start();
+    watchRing();
+  });
+  watchRing();
+
+  // ページャーのリング一周時間を CSS 変数に設定
+  var mvPagerEl2 = document.querySelector(".mv_slider_pager");
+  if (mvPagerEl2) {
+    mvPagerEl2.style.setProperty("--mv-pager-duration", MV_AUTOPLAY_DELAY + "ms");
   }
 })();
 
